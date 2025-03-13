@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import random
 import re
 import tempfile
@@ -10,8 +11,6 @@ from urllib.parse import urlparse
 import cv2
 import requests
 from linkpreview import link_preview
-
-from conftest import output_path
 
 ISO_8601_TIME_PATTERN = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
 
@@ -55,7 +54,8 @@ def download_image_to_tempfile(url: str) -> Optional[Path]:
     return Path(temp_file_name)
 
 
-def resize_and_crop_image(image_path: Path, output_path: Optional[Path]=None, max_size: int = 172) -> Tuple[Path, int, int]:
+def resize_and_crop_image(image_path: Path, output_path: Optional[Path] = None, max_size: int = 172) -> Tuple[
+    Path, int, int]:
     """
     Resizes an image such that the longest side is no longer than max_size pixels and then crops it to a square shape from the center.
 
@@ -87,8 +87,7 @@ def resize_and_crop_image(image_path: Path, output_path: Optional[Path]=None, ma
     min_dimension = min(new_width, new_height)
     crop_start_x = (new_width - min_dimension) // 2
     crop_start_y = (new_height - min_dimension) // 2
-    cropped_img = resized_img[crop_start_y:crop_start_y + min_dimension,
-                               crop_start_x:crop_start_x + min_dimension]
+    cropped_img = resized_img[crop_start_y:crop_start_y + min_dimension, crop_start_x:crop_start_x + min_dimension]
 
     # Save the cropped image to a new file
     output_path = output_path or image_path.with_name(f"Resized_{image_path.name}")
@@ -97,7 +96,7 @@ def resize_and_crop_image(image_path: Path, output_path: Optional[Path]=None, ma
     return output_path, min_dimension, min_dimension
 
 
-def resize_image(image_path: Path, output_path: Optional[Path]=None, max_size: int = 1024) -> Tuple[Path, int, int]:
+def resize_image(image_path: Path, output_path: Optional[Path] = None, max_size: int = 1024) -> Tuple[Path, int, int]:
     """
     Resizes an image such that the longest side is no longer than max_size pixels.
 
@@ -159,7 +158,8 @@ def convert_time_str(time_str: str):
 
 
 def get_recipes_folder() -> Path:
-    return Path(RECIPE_FOLDER)
+    return Path(os.getenv("NEXTCLOUD_RECIPE_FOLDER", str()))
+
 
 def get_recipe_files():
     files = list()

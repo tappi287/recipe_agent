@@ -5,17 +5,11 @@ import re
 from pathlib import Path
 from typing import Optional
 
-import cv2
-
 from recipe_agent.recipe import Recipe
-from recipe_agent.utils import get_link_preview_image, download_image_to_tempfile, resize_image, resize_and_crop_image
+from recipe_agent.utils import get_link_preview_image, download_image_to_tempfile, resize_and_crop_image
 
 RECIPE_FOLDER = os.getenv("NEXTCLOUD_RECIPE_FOLDER", str())
-IMAGE_ATTR = {
-    "full": 1024,
-    "thumb": 256,
-    "thumb16": 16,
-}
+IMAGE_ATTR = {"full": 1024, "thumb": 256, "thumb16": 16, }
 
 
 class NextcloudRecipe(Recipe):

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from black.trans import defaultdict
+from collections import defaultdict
 
 from recipe_agent.ollama_chat import ollama_chat_request
 from recipe_agent.recipe_config import LLM_PROVIDER
