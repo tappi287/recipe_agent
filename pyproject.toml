@@ -1,0 +1,39 @@
+[project]
+name = "recipe_agent"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4==4.13.3",
+    "black>=25.1.0",
+    "crawl4ai==0.4.248",
+    "opencv-contrib-python-headless>=4.11.0.86",
+    "linkpreview==0.11.0",
+    "ollama>=0.4.7",
+    "pydantic>=2.10.6",
+    "pytest>=8.3.5",
+    "pytest-asyncio==0.25.3",
+    "python-telegram-bot==21.11.1",
+    "requests==2.32.3",
+]
+
+[project.scripts]
+bot = "recipe_agent.bot:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/recipe_agent"]
+
+[tool.hatch.build.targets.wheel]
+include = ["src/recipe_agent"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src/recipe_agent" = "recipe_agent"
+
+[tool.pytest.ini_options]
+log_cli="True"
+log_cli_level="DEBUG"
+asyncio_default_fixture_loop_scope="module"
