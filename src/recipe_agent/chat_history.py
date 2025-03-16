@@ -1,6 +1,5 @@
 import logging
 from collections import defaultdict
-from itertools import zip_longest
 from typing import Optional
 
 
@@ -19,7 +18,7 @@ class ChatHistory:
         messages += self._history[username]
 
         logging.info(f"ChatHistory messages: \n"
-                     f"{'\n'.join([f"{e['role']}: {e['content']}" for e in messages])}")
+                     f"{'\n'.join([f"{e['role']}: {e['content']}" for e in messages if e['role'] != 'system'])}")
         return messages
 
     def add_user_message(self, username: str, message: str, system_prompt: str = None):
