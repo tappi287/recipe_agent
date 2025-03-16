@@ -12,6 +12,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, ContextTyp
 
 from recipe_agent import recipe
 from recipe_agent.agents import recipe_agent, chat_agent
+from recipe_agent.chat_history import ChatHistory
 from recipe_agent.utils import to_md_recipe
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -23,6 +24,7 @@ JOBS = defaultdict(list)
 DEFAULTS = Defaults(
     link_preview_options=LinkPreviewOptions(is_disabled=True)
 )
+BOT_AI_CHAT_HISTORY = ChatHistory(max_history_length=10)
 
 async def answer_message_with_dots(update, username, message_text, initial_message):
     # Send initial message
@@ -32,7 +34,7 @@ async def answer_message_with_dots(update, username, message_text, initial_messa
     dot_task = asyncio.create_task(_add_dots(answer, initial_message))
 
     # Wait for the response from the chat_agent
-    response = await chat_agent.answer_message(username, message_text)
+    response = await chat_agent.answer_message(username, message_text, BOT_AI_CHAT_HISTORY)
 
     # Cancel the dot task
     dot_task.cancel()
@@ -65,8 +67,10 @@ async def _chat(update: Update, message_text):
 
 
 async def _process_recipe(update: Update, urls: List[str], message_text: str):
-    response = await chat_agent.answer_message_with_link(update.effective_user.first_name or "Du", message_text)
-    # initial_response = "Alles klar! Adresse(n):\n" + "\n".join(urls) + "\nSchaue ich mir an, dauert einen Moment"
+    username = update.effective_user.first_name or "Du"
+    response = await chat_agent.answer_message_with_link(
+        username, message_text, BOT_AI_CHAT_HISTORY
+    )
     answer = await update.message.reply_text(response)
 
     for url in urls:
@@ -84,8 +88,11 @@ async def _process_recipe(update: Update, urls: List[str], message_text: str):
             return
 
         dot_task.cancel()
+
+        markdown_recipe = to_md_recipe(recipe_obj)
+        BOT_AI_CHAT_HISTORY.add_assistant_response(username, markdown_recipe)
         await update.message.reply_markdown_v2(
-            to_md_recipe(recipe_obj)
+            markdown_recipe
         )
 
 
