@@ -1,9 +1,12 @@
 import asyncio
 import logging
 import os
+import platform
 import re
+import sys
 import time
 from collections import defaultdict
+from pathlib import Path
 from typing import List
 
 from telegram import Update, LinkPreviewOptions
@@ -139,6 +142,14 @@ def main() -> None:
             time.sleep(5)
         else:
             break
+
+
+def hello_docker():
+    for f in Path(__file__).parents[2].iterdir():
+        print(f.name)
+
+    print("Hello from Docker!", platform.platform(), 'Python', sys.version)
+    print(os.environ)
 
 
 if __name__ == '__main__':

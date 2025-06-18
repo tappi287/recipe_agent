@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 OUTPUT_DIR = Path(__file__).parent.joinpath("data/output")
+INPUT_PATH = Path(__file__).parent.joinpath("data/input")
 
 # Example usage:
 RECIPE_DATA = {
@@ -43,6 +44,10 @@ def recipe_data():
 def output_path():
     return OUTPUT_DIR
 
+
+@pytest.fixture
+def input_path():
+    return INPUT_PATH
 
 URLS = {
     "mozzarella_haehnchen_in_basilikum_sahnesauce":
