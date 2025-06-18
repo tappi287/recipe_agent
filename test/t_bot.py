@@ -18,7 +18,7 @@ async def test_bot_answer_with_link():
     name = "Tester"
     message = "Hallo, extrahiere diesen Link! Schnell!!  https://www.chefkoch.de/rezepte/2202191353071882/Vegane-Cranberry-Kokos-Muffins.html"
 
-    response = await chat_agent.answer_message_with_link(name, message)
+    response = await chat_agent.answer_message_with_link(name, message, ChatHistory())
     print(response)
     assert isinstance(response, str)
 
