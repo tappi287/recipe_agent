@@ -9,12 +9,12 @@ dependencies = [
     "crawl4ai==0.4.248",
     "opencv-contrib-python-headless>=4.11.0.86",
     "linkpreview==0.11.0",
-    "ollama>=0.4.7",
     "pydantic>=2.10.6",
     "pytest>=8.3.5",
     "pytest-asyncio==0.25.3",
     "python-telegram-bot==21.11.1",
     "requests==2.32.3",
+    "openai>=1.65.5",
 ]
 
 [project.scripts]

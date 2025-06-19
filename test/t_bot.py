@@ -8,7 +8,7 @@ async def test_bot_answer():
     name = "Tester"
     message = "Hallo"
 
-    response = await chat_agent.answer_message(name, message)
+    response = await chat_agent.answer_message(name, message, ChatHistory())
     print(response)
     assert isinstance(response, str)
 

@@ -1,15 +1,16 @@
 import json
 import logging
 import re
+import os
 
 from crawl4ai import AsyncWebCrawler, CrawlResult
 
 from recipe_agent.recipe import RecipeLLM
-from recipe_agent.ollama_chat import ollama_chat_request
+from recipe_agent.openrouter_chat import openrouter_chat_request
 from recipe_agent.recipe_config import BASE_BROWSER, LL_EXTRACTION_STRATEGY, LLM_PROVIDER, CRAWL_CONFIG
 
 
-async def process_with_ollama(crawled_markdown: str, url: str) -> str:
+async def process_with_openrouter(crawled_markdown: str, url: str) -> str:
     """ Take the scraped data as markdown and extract recipe information into Recipe Schema
 
     :param crawled_markdown:
@@ -23,8 +24,8 @@ async def process_with_ollama(crawled_markdown: str, url: str) -> str:
 
     logging.info(f"Message to LLM: [{len(message['content'])}] {message}")
 
-    response = await ollama_chat_request(
-        LLM_PROVIDER.replace('ollama/', ''),
+    response = await openrouter_chat_request(
+        LLM_PROVIDER,
         [message],
         RecipeLLM.model_json_schema(by_alias=True),
         LL_EXTRACTION_STRATEGY.extra_args,
@@ -55,7 +56,7 @@ async def scrape_recipe(url):
 
         if result.success:
             if crawl_config.extraction_strategy is None:
-                response = await process_with_ollama(result.markdown, url)
+                response = await process_with_openrouter(result.markdown, url)
                 img_list = result.media.get("images")
                 logging.debug("Image List: %s", img_list)
             else:

@@ -1,17 +1,18 @@
 import json
 import logging
+import os
 from typing import Optional
 
 from crawl4ai import AsyncWebCrawler, CrawlResult
 
 from recipe_agent.chat_history import ChatHistory
-from recipe_agent.ollama_chat import ollama_chat_request
+from recipe_agent.openrouter_chat import openrouter_chat_request
 from recipe_agent.recipe_config import CRAWL_CONFIG, BASE_BROWSER
 from recipe_agent.tools.duckducktool import SearchResultSelection, duckduckgo_search_local
 
 MAX_ITERATIONS = 4
 USER = "SearchAgent"
-LLM_MODEL = "phi4:latest"
+LLM_MODEL = "mistralai/mistral-7b-instruct:free"
 
 SEARCH_SYS_PROMPT = (
     "You are a Web Search Assistant. You try to understand the meaning of the user's search query what he had "
@@ -26,7 +27,7 @@ SEARCH_SYS_PROMPT = (
 )
 ITERATIVE_SEARCH_HISTORY = ChatHistory(SEARCH_SYS_PROMPT)
 
-AGENT_SYS_PROMPT =summarizer_instructions="""
+AGENT_SYS_PROMPT = summarizer_instructions = """
 <GOAL>
 Generate a high-quality summary of the web search results and keep it concise / related to the user topic.
 </GOAL>
@@ -61,9 +62,9 @@ async def iterative_refine(query: str) -> SearchResultSelection:
         prompt = f"User search query: \"{query}\"\nResults:\n{str(search_results)}"
         ITERATIVE_SEARCH_HISTORY.add_user_message(USER, prompt)
 
-        response = await ollama_chat_request(LLM_MODEL, ITERATIVE_SEARCH_HISTORY.get_messages(USER),
-                                             options={'stream': True},
-                                             res_format=SearchResultSelection.model_json_schema())
+        response = await openrouter_chat_request(LLM_MODEL, ITERATIVE_SEARCH_HISTORY.get_messages(USER),
+                                                 options={'stream': True},
+                                                 res_format=SearchResultSelection.model_json_schema())
         ITERATIVE_SEARCH_HISTORY.add_assistant_response(USER, response)
 
         result_response = SearchResultSelection.model_validate(json.loads(response))
@@ -111,9 +112,10 @@ async def summarize_scrape_result(scraped_content: str, query: str):
         {'role': 'user', 'content': f"The query we are searching the Web for is: \"{query}\"\n"
                                     f"This is the extracted markdown:\n{scraped_content[:10000]}"}
     ]
-    response = await ollama_chat_request(LLM_MODEL, messages,
-                                         options={'stream': True, "temperature": 0, "max_tokens": 8192,
-                                                  "num_ctx": 8192})
+    response = await openrouter_chat_request(LLM_MODEL, messages,
+                                             options={'stream': True, "temperature": 0, "max_tokens": 8192,
+                                                      # "num_ctx": 8192
+                                             })
     return response
 
 
@@ -133,8 +135,10 @@ async def search_agent(query: str) -> str:
         )
         AGENT_HISTORY.add_user_message(USER, prompt)
 
-        response = await ollama_chat_request(LLM_MODEL, AGENT_HISTORY.get_messages(USER),
-            options={'stream': True, "temperature": 0.1, "max_tokens": 16384, "num_ctx": 16384})
+        response = await openrouter_chat_request(LLM_MODEL, AGENT_HISTORY.get_messages(USER),
+                                                 options={'stream': True, "temperature": 0.1, "max_tokens": 16384,
+                                                          # "num_ctx": 16384
+                                                          })
         AGENT_HISTORY.add_assistant_response(USER, response)
 
     return AGENT_HISTORY.get_messages(USER)[-1]['content']

@@ -8,7 +8,7 @@ BASE_BROWSER = BrowserConfig(
     headless=True,
     text_mode=True
 )
-LLM_PROVIDER="ollama/phi4"
+LLM_PROVIDER="mistralai/mistral-7b-instruct:free"
 # LLM_CONFIG = LLMConfig(provider=LLM_PROVIDER)
 LL_EXTRACTION_STRATEGY = LLMExtractionStrategy(
     # llm_config=LLM_CONFIG,
@@ -28,7 +28,8 @@ LL_EXTRACTION_STRATEGY = LLMExtractionStrategy(
                 "* fill the keywords field with words that you think would help search for the recipe\n"
                 "* store all data in German language\n",
     input_format="markdown",
-    extra_args={"temperature": 0.1, "max_tokens": 16384, "num_ctx": 16384},
+    extra_args={"temperature": 0.1, "max_tokens": 16384, # "num_ctx": 16384
+                },
     verbose=True
 )
 

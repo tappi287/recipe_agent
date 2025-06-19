@@ -1,7 +1,7 @@
 import os
 
 from recipe_agent.chat_history import ChatHistory
-from recipe_agent.ollama_chat import ollama_chat_request
+from recipe_agent.openrouter_chat import openrouter_chat_request
 from recipe_agent.recipe_config import LLM_PROVIDER
 
 
@@ -35,8 +35,8 @@ async def answer_message(username: str, message: str, history: ChatHistory):
 
     history.add_user_message(username, prompt, _create_sys_prompt(SYS_PROMPT_NO_LINK))
 
-    response = await ollama_chat_request(
-        LLM_PROVIDER.replace('ollama/', ''),
+    response = await openrouter_chat_request(
+        LLM_PROVIDER,
         history.get_messages(username),
         options={'stream': True}
     )
@@ -51,8 +51,8 @@ async def answer_message_with_link(username: str, message: str, history: ChatHis
               f'Antworte sehr kurz das du dir den Link nun anschaust.')
     history.add_user_message(username, prompt, _create_sys_prompt(SYS_PROMPT_LINK))
 
-    response = await ollama_chat_request(
-        LLM_PROVIDER.replace('ollama/', ''),
+    response = await openrouter_chat_request(
+        LLM_PROVIDER,
         history.get_messages(username),
         options={'stream': True}
     )
