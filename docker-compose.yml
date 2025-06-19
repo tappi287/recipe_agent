@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_REPO_URL=https://github.com/tappi287/recipe_agent.git
+    # Verwende ein benanntes Volume für persistente Daten
+    volumes:
+      - repo_data:/app/repo
+    # Verwende das Startup-Script (bereits in Dockerfile als CMD konfiguriert)
+
+
+# Benannte Volumes für Datenpersistenz
+volumes:
+  repo_data:
+    # Dieses Volume speichert das geklonte Repository

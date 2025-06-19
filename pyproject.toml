@@ -19,6 +19,7 @@ dependencies = [
 
 [project.scripts]
 bot = "recipe_agent.bot:main"
+hello = "recipe_agent.bot:hello_docker"
 
 [build-system]
 requires = ["hatchling"]

@@ -1,5 +1,16 @@
 # Recipe Agent
+# Projekt-Docker-Setup
 
+Ein minimales Docker-Setup für diese Python-Anwendung.
+
+## Voraussetzungen
+
+- Docker
+- Docker Compose
+
+## Nutzung
+
+So startest du die Anwendung:
 The **Recipe Agent** project is designed to assist users in extracting recipe ingredients and preparation steps from web pages. By sending URLs of recipes via a Telegram bot, it retrieves structured recipe data, omitting any unnecessary content.
 
 This tool leverages asynchronous crawling techniques to fetch content and utilizes language models for processing complex text structures. It's ideal for food enthusiasts looking to streamline their cooking experience by quickly accessing key recipe details without manual filtering.
