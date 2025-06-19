@@ -14,8 +14,16 @@ if [ -d "$REPO_DIR/.git" ]; then
     git reset --hard origin/main
 else
     echo "Klone Repository..."
-    # Entferne den Verzeichnisinhalt, falls er existiert
-    rm -rf $REPO_DIR
+    # Prüfe ob der Ordner existiert
+    if [ -d "$REPO_DIR" ]; then
+        echo "Verzeichnis existiert bereits, überspringe das Entfernen..."
+        # Stelle sicher, dass das Verzeichnis leer ist (ohne .git zu löschen, falls es existiert)
+        find "$REPO_DIR" -mindepth 1 -maxdepth 1 -not -name ".git" -exec rm -rf {} \; 2>/dev/null || true
+    else
+        # Erstelle das Verzeichnis, falls es nicht existiert
+        mkdir -p "$REPO_DIR"
+    fi
+
     # Klone das Repository
     git clone $REPO_URL $REPO_DIR
     cd $REPO_DIR

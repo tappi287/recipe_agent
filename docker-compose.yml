@@ -6,16 +6,19 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
+    env_file:
+      - .env
+    # Netzwerkkonfiguration für Telegram Bot
+    # network_mode: "bridge"
     environment:
       - PYTHONUNBUFFERED=1
       - GIT_REPO_URL=https://github.com/tappi287/recipe_agent.git
     # Verwende ein benanntes Volume für persistente Daten
     volumes:
       - repo_data:/app/repo
-    # Verwende das Startup-Script (bereits in Dockerfile als CMD konfiguriert)
+      # Optional: Gemapptes Volume für persistente .env-Datei
+      # - ./env_file:/app/repo/.env
 
-
-# Benannte Volumes für Datenpersistenz
 volumes:
   repo_data:
     # Dieses Volume speichert das geklonte Repository
