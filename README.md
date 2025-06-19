@@ -54,4 +54,7 @@ The bot functionality requires a valid `TELEBOT_TOKEN`. This token authenticates
 
 ---
 
+##### OpenRouter Models verified to work with instructions
+'mistralai/mistral-nemo:free' - [URL](https://openrouter.ai/mistralai/mistral-nemo:free/api)
+
 Note: This README is based on provided files and may require additional steps depending on specific configurations.

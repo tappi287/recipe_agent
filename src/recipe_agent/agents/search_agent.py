@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from typing import Optional
 
 from crawl4ai import AsyncWebCrawler, CrawlResult
@@ -9,10 +8,11 @@ from recipe_agent.chat_history import ChatHistory
 from recipe_agent.openrouter_chat import openrouter_chat_request
 from recipe_agent.recipe_config import CRAWL_CONFIG, BASE_BROWSER
 from recipe_agent.tools.duckducktool import SearchResultSelection, duckduckgo_search_local
+from recipe_agent.recipe_config import LLM_PROVIDER
+
 
 MAX_ITERATIONS = 4
 USER = "SearchAgent"
-LLM_MODEL = "mistralai/mistral-7b-instruct:free"
 
 SEARCH_SYS_PROMPT = (
     "You are a Web Search Assistant. You try to understand the meaning of the user's search query what he had "
@@ -62,7 +62,7 @@ async def iterative_refine(query: str) -> SearchResultSelection:
         prompt = f"User search query: \"{query}\"\nResults:\n{str(search_results)}"
         ITERATIVE_SEARCH_HISTORY.add_user_message(USER, prompt)
 
-        response = await openrouter_chat_request(LLM_MODEL, ITERATIVE_SEARCH_HISTORY.get_messages(USER),
+        response = await openrouter_chat_request(LLM_PROVIDER, ITERATIVE_SEARCH_HISTORY.get_messages(USER),
                                                  options={'stream': True},
                                                  res_format=SearchResultSelection.model_json_schema())
         ITERATIVE_SEARCH_HISTORY.add_assistant_response(USER, response)
@@ -112,7 +112,7 @@ async def summarize_scrape_result(scraped_content: str, query: str):
         {'role': 'user', 'content': f"The query we are searching the Web for is: \"{query}\"\n"
                                     f"This is the extracted markdown:\n{scraped_content[:10000]}"}
     ]
-    response = await openrouter_chat_request(LLM_MODEL, messages,
+    response = await openrouter_chat_request(LLM_PROVIDER, messages,
                                              options={'stream': True, "temperature": 0, "max_tokens": 8192,
                                                       # "num_ctx": 8192
                                              })
