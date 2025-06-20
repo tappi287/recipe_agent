@@ -96,7 +96,3 @@ def construct_recipe_from_recipe_llm(recipe_llm: RecipeLLM) -> Recipe:
     )
 
     return recipe
-
-
-def create_nextcloud_recipe(recipe: Recipe):
-    pass

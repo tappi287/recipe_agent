@@ -2,13 +2,14 @@
 import logging
 import os
 import re
+import urllib
+import urllib.parse
 from pathlib import Path
 from typing import Optional
 
 from recipe_agent.recipe import Recipe
 from recipe_agent.utils import get_link_preview_image, download_image_to_tempfile, resize_and_crop_image
 
-RECIPE_FOLDER = os.getenv("NEXTCLOUD_RECIPE_FOLDER", str())
 IMAGE_ATTR = {"full": 1024, "thumb": 256, "thumb16": 16, }
 
 
@@ -17,17 +18,27 @@ class NextcloudRecipe(Recipe):
         super().__init__(**kwargs)
         self._directory: Optional[Path] = None
 
+    def get_recipe_folder(self, overwrite_recipe_dir: Optional[Path] = None) -> Optional[Path]:
+        return self._create_recipe_folder(overwrite_recipe_dir)
+
     def create_recipe(self, overwrite_recipe_dir: Optional[Path] = None):
-        self._directory = self._create_recipe_folder(overwrite_recipe_dir)
+        self._directory = self.get_recipe_folder(overwrite_recipe_dir)
         if not self._directory:
-            logging.error(f"Could not create a recipe folder at {RECIPE_FOLDER}")
+            logging.error(f"Could not create a recipe folder at {os.getenv("NEXTCLOUD_RECIPE_FOLDER", "NaN")}")
             return
 
         self._create_recipe_preview_image()
         self._create_recipe_data()
+        logging.debug(f"Created Nextcloud Cookbook recipe files {self.name} at {self._directory}")
 
     def _create_recipe_folder(self, overwrite_recipe_dir: Optional[Path] = None) -> Optional[Path]:
-        recipe_base_dir = overwrite_recipe_dir or RECIPE_FOLDER
+        recipe_base_dir = overwrite_recipe_dir or os.getenv("NEXTCLOUD_RECIPE_FOLDER", str())
+        try:
+            recipe_base_dir = Path(recipe_base_dir)
+            recipe_base_dir.mkdir(exist_ok=True)
+        except OSError:
+            pass
+
         if not Path(recipe_base_dir).exists():
             return None
 
@@ -44,6 +55,10 @@ class NextcloudRecipe(Recipe):
         if not link_preview_image:
             return
 
+        if link_preview_image.startswith("/"):
+            url = urllib.parse.urlparse(self.url)
+            link_preview_image = f"{url.scheme}://{url.netloc}{link_preview_image}"
+
         temp_file = download_image_to_tempfile(link_preview_image)
         if not temp_file:
             return
@@ -56,4 +71,4 @@ class NextcloudRecipe(Recipe):
 
     def _create_recipe_data(self):
         with open(self._directory.joinpath('recipe.json'), "w", encoding="utf-8") as f:
-            f.write(self.model_dump_json(indent=4))
+            f.write(self.model_dump_json(indent=4, by_alias=True))
