@@ -6,6 +6,7 @@ requires-python = ">=3.13"
 dependencies = [
     "beautifulsoup4>=4.13.3",
     "crawl4ai>=0.4.248",
+    "dotenv>=0.9.9",
     "linkpreview>=0.11.0",
     "pydantic>=2.10.6",
     "python-telegram-bot==21.11.1",
