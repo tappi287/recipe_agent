@@ -4,6 +4,7 @@ import os
 import random
 import re
 import tempfile
+import traceback
 from pathlib import Path
 from typing import Optional, Tuple
 from urllib.parse import urlparse
@@ -169,7 +170,7 @@ def get_recipe_files():
                 for f in d.glob('*.json'):
                     files.append(f)
     except Exception as e:
-        logging.error(f"Error getting recipe files: {e}")
+        logging.error(f"Error getting recipe files: {exception_and_traceback(e)}")
 
     return files
 
@@ -210,3 +211,10 @@ def to_md_recipe(r: 'Recipe'):
     md += "\n".join([escape_md_v2(f"{idx + 1: 2d}. {i}") for idx, i in enumerate(r.recipe_instructions)])
 
     return md
+
+
+def exception_and_traceback(e):
+    try:
+        return "\n".join(traceback.format_exception(e))
+    except Exception as _e:
+        return f"{_e}\n{e}"

@@ -2,6 +2,8 @@ import logging
 import os
 from openai import OpenAI
 
+from recipe_agent.utils import exception_and_traceback
+
 # OpenRouter API-Konfiguration
 OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY')
 SITE_URL = os.environ.get('SITE_URL', 'https://yourwebsite.com')
@@ -100,5 +102,5 @@ async def openrouter_chat_request(model: str, messages: list, res_format: dict=N
 
             return response
     except Exception as e:
-        logging.error(f"Fehler bei OpenRouter-Anfrage: {e}")
+        logging.error(f"Fehler bei OpenRouter-Anfrage: {exception_and_traceback(e)}")
         raise

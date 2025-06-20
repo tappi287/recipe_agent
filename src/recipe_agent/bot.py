@@ -13,7 +13,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, ContextTyp
 from recipe_agent import recipe
 from recipe_agent.agents import recipe_agent, chat_agent
 from recipe_agent.chat_history import ChatHistory
-from recipe_agent.utils import to_md_recipe
+from recipe_agent.utils import to_md_recipe, exception_and_traceback
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -60,7 +60,7 @@ async def _chat(update: Update, message_text):
         await answer_message_with_dots(update, update.effective_user.first_name or "Du", message_text,
                                        "Kurz nachdenken")
     except Exception as e:
-        logging.error(f"Error requesting answer: {e}")
+        logging.error(f"Error requesting answer: {exception_and_traceback(e)}")
         response = (f"Keine Webadressen in der Nachricht gefunden. Sende mir Internetadressen im Format "
                     f"https://beispiel.de/dein-rezept. Versuchs einfach nochmal {update.effective_chat.first_name}")
         await update.message.reply_text(response)
@@ -82,7 +82,7 @@ async def _process_recipe(update: Update, urls: List[str], message_text: str):
             recipe_obj = recipe.construct_recipe_from_recipe_llm(recipe.RecipeLLM(**recipe_llm_data))
             JOBS[update.effective_chat.id].append(recipe_obj)
         except Exception as e:
-            logging.error(f"Error creating recipe: {e}")
+            logging.error(f"Error creating recipe: {exception_and_traceback(e)}")
             await update.message.reply_text("Etwas ist schiefgelaufen. Versuch es später nochmal!")
             dot_task.cancel()
             return

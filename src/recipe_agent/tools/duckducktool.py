@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from pydantic import BaseModel
 
+from recipe_agent.utils import exception_and_traceback
+
 
 class SearchResultSelection(BaseModel):
     relevant_urls: List[str]
@@ -75,7 +77,7 @@ def duckduckgo_search_local(query: str) -> DuckDuckGoSearchResults:
     try:
         soup = BeautifulSoup(requests.get(ddg_url, params={'q': query}, headers=headers).content, 'html.parser')
     except Exception as e:
-        logging.error(f"Error trying to request search query at {ddg_url}: {e}")
+        logging.error(f"Error trying to request search query at {ddg_url}: {exception_and_traceback(e)}")
         return results
 
     for el in soup.select('.links_main.result__body'):
