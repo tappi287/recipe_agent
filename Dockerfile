@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
+FROM python:3.13-slim-bookworm
 
 # Installiere Git und andere Abhängigkeiten
 RUN apt-get update && apt-get install -y \
@@ -29,7 +29,11 @@ RUN apt-get update && apt-get install -y \
     libvulkan1 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN playwright install --with-deps
+# Stelle sicher, dass pip aktuell ist
+RUN pip install --upgrade pip
+
+# Installiere das Playwright Python Paket im Dockerfile
+RUN pip install playwright
 
 WORKDIR /app
 
