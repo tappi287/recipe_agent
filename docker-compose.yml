@@ -13,12 +13,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - GIT_REPO_URL=https://github.com/tappi287/recipe_agent.git
-    # Verwende ein benanntes Volume für persistente Daten
+      # Playwright Config
+      - PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
     volumes:
       - repo_data:/app/repo
-      # Optional: Gemapptes Volume für persistente .env-Datei
-      # - ./env_file:/app/repo/.env
+      - playwright_cache:/root/.cache/ms-playwright
 
 volumes:
   repo_data:
     # Dieses Volume speichert das geklonte Repository
+  playwright_cache:
+    # Dieses Volume speichert die Playwright Browser-Binaries

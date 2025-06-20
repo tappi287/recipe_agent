@@ -36,6 +36,10 @@ echo "Synchronisiere Abhängigkeiten mit uv sync..."
 cd $REPO_DIR
 uv sync --frozen
 
+# Installiere Playwright Browser
+echo "Installiere Playwright Browser..."
+uv run playwright install chromium --with-deps
+
 # Führe die Anwendung aus
 echo "Starte Anwendung..."
 exec uv run bot
