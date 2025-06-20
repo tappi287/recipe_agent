@@ -9,9 +9,9 @@ from pathlib import Path
 from typing import Optional, Tuple
 from urllib.parse import urlparse
 
-import cv2
 import requests
 from linkpreview import link_preview
+from PIL import Image
 
 ISO_8601_TIME_PATTERN = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
 
@@ -55,6 +55,25 @@ def download_image_to_tempfile(url: str) -> Optional[Path]:
     return Path(temp_file_name)
 
 
+def open_and_resize_image(image_path: Path, max_size: int = 1024) -> Tuple[Image, int, int]:
+    img = Image.open(image_path)
+    original_width, original_height = img.size
+
+    # Determine the scaling factor
+    if original_width > max_size or original_height > max_size:
+        if original_width > original_height:
+            new_width = max_size
+            new_height = int((max_size / original_width) * original_height)
+        else:
+            new_height = max_size
+            new_width = int((max_size / original_height) * original_width)
+
+        # Resize the image
+        return img.resize((new_width, new_height), Image.Resampling.LANCZOS), new_width, new_height
+
+    return img, original_width, original_height
+
+
 def resize_and_crop_image(image_path: Path, output_path: Optional[Path] = None, max_size: int = 172) -> Tuple[
     Path, int, int]:
     """
@@ -70,29 +89,19 @@ def resize_and_crop_image(image_path: Path, output_path: Optional[Path] = None, 
                               the new width, and the new height.
     """
     # Read the image
-    img = cv2.imread(image_path.as_posix())
-    original_height, original_width = img.shape[:2]
-
-    # Determine the scaling factor
-    if original_width > original_height:
-        new_width = max_size
-        new_height = int((max_size / original_width) * original_height)
-    else:
-        new_height = max_size
-        new_width = int((max_size / original_height) * original_width)
-
-    # Resize the image
-    resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+    resized_img, new_width, new_height = open_and_resize_image(image_path, max_size)
 
     # Crop to a square shape from the center
     min_dimension = min(new_width, new_height)
-    crop_start_x = (new_width - min_dimension) // 2
-    crop_start_y = (new_height - min_dimension) // 2
-    cropped_img = resized_img[crop_start_y:crop_start_y + min_dimension, crop_start_x:crop_start_x + min_dimension]
+    left = (new_width - min_dimension) // 2
+    top = (new_height - min_dimension) // 2
+    right = (new_width + min_dimension) // 2
+    bottom = (new_height + min_dimension) // 2
+    cropped_img = resized_img.crop((left, top, right, bottom))
 
     # Save the cropped image to a new file
     output_path = output_path or image_path.with_name(f"Resized_{image_path.name}")
-    cv2.imwrite(output_path.as_posix(), cropped_img)
+    cropped_img.save(output_path)
 
     return output_path, min_dimension, min_dimension
 
@@ -111,23 +120,11 @@ def resize_image(image_path: Path, output_path: Optional[Path] = None, max_size:
                               the new width, and the new height.
     """
     # Read the image
-    img = cv2.imread(image_path.as_posix())
-    original_height, original_width = img.shape[:2]
-
-    # Determine the scaling factor
-    if original_width > original_height:
-        new_width = max_size
-        new_height = int((max_size / original_width) * original_height)
-    else:
-        new_height = max_size
-        new_width = int((max_size / original_height) * original_width)
-
-    # Resize the image
-    resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+    resized_img, new_width, new_height = open_and_resize_image(image_path, max_size)
 
     # Save the resized image to a new file
     output_path = output_path or image_path.with_name(f"Resized_{image_path.name}")
-    cv2.imwrite(output_path.as_posix(), resized_img)
+    resized_img.save(output_path)
 
     return output_path, new_width, new_height
 

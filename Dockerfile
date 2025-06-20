@@ -29,6 +29,8 @@ RUN apt-get update && apt-get install -y \
     libvulkan1 \
     && rm -rf /var/lib/apt/lists/*
 
+RUN playwright install --with-deps
+
 WORKDIR /app
 
 # Kopiere das Startup-Script
@@ -37,8 +39,6 @@ RUN chmod +x /app/start.sh
 
 # Setze Umgebungsvariablen für Playwright
 ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
-
-EXPOSE 8000
 
 # Starte das Startup-Script, das das Repository klont und die Anwendung ausführt
 CMD ["/app/start.sh"]

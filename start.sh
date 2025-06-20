@@ -34,14 +34,14 @@ echo "Repository aktualisiert!"
 # Installiere die Abhängigkeiten mit uv sync
 echo "Synchronisiere Abhängigkeiten mit uv sync..."
 cd $REPO_DIR
-uv sync --frozen
+uv sync --frozen --no-dev
 
 # Prüfe ob Playwright Browser vorhanden sind
-if [ ! -d "/root/.cache/ms-playwright/chromium-1155" ]; then
+if [ ! -d "/root/.cache/ms-playwright" ]; then
     echo "Playwright Browser nicht gefunden, installiere..."
     uv run playwright install chromium --with-deps
 else
-    echo "Playwright Browser bereits installiert, überspringe Installation..."
+    echo "Playwright Browser Verzeichnis gefunden, überspringe Installation..."
 fi
 
 # Führe die Anwendung aus

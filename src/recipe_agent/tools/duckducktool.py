@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-import requests
+import httpx
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from pydantic import BaseModel
@@ -75,7 +75,7 @@ def duckduckgo_search_local(query: str) -> DuckDuckGoSearchResults:
     }
     ddg_url = 'https://duckduckgo.com/html/'
     try:
-        soup = BeautifulSoup(requests.get(ddg_url, params={'q': query}, headers=headers).content, 'html.parser')
+        soup = BeautifulSoup(httpx.get(ddg_url, params={'q': query}, headers=headers).content, 'html.parser')
     except Exception as e:
         logging.error(f"Error trying to request search query at {ddg_url}: {exception_and_traceback(e)}")
         return results
@@ -102,7 +102,7 @@ def duckduckgo_search_local(query: str) -> DuckDuckGoSearchResults:
         # -- Add result
         if ddg_urld and url:
             # -- Create Result
-            results + DuckDuckGoSearchResult(title=a.string, url=url, snippet=snippet.text)
+            results.append(DuckDuckGoSearchResult(title=a.string, url=url, snippet=snippet.text))
 
     return results
 
