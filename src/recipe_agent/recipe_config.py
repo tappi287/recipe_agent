@@ -8,7 +8,9 @@ BASE_BROWSER = BrowserConfig(
     headless=True,
     text_mode=True
 )
-LLM_PROVIDER="mistralai/mistral-nemo:free"
+# LLM_PROVIDER="mistralai/mistral-nemo:free"
+LLM_PROVIDER="meta-llama/llama-3.3-8b-instruct:free"
+
 # LLM_CONFIG = LLMConfig(provider=LLM_PROVIDER)
 LL_EXTRACTION_STRATEGY = LLMExtractionStrategy(
     # llm_config=LLM_CONFIG,

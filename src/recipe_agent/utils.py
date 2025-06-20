@@ -163,10 +163,14 @@ def get_recipes_folder() -> Path:
 
 def get_recipe_files():
     files = list()
-    for d in get_recipes_folder().iterdir():
-        if d.is_dir():
-            for f in d.glob('*.json'):
-                files.append(f)
+    try:
+        for d in get_recipes_folder().iterdir():
+            if d.is_dir():
+                for f in d.glob('*.json'):
+                    files.append(f)
+    except Exception as e:
+        logging.error(f"Error getting recipe files: {e}")
+
     return files
 
 
@@ -179,13 +183,13 @@ def parse_recipe(file: Path) -> dict:
         return dict()
 
 
-def generate_recipe_uid():
+def generate_recipe_uid(use_nextcloud_recipe_filestore: bool = False):
     existing_ids = set()
-    for file in get_recipe_files():
-        recipe_data = parse_recipe(file)
-        existing_ids.add(int(recipe_data.get("id", 0)))
+    if use_nextcloud_recipe_filestore:
+        for file in get_recipe_files():
+            recipe_data = parse_recipe(file)
+            existing_ids.add(int(recipe_data.get("id", 0)))
 
-    print(existing_ids)
     new_id = random.randint(100000, 999999)
     while new_id in existing_ids:
         new_id = random.randint(100000, 999999)
