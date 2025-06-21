@@ -7,14 +7,16 @@ Es ermöglicht das Abrufen und Hochladen von Rezepten über die WebDAV-Schnittst
 import json
 import logging
 import os
-import re
 import xml.etree.ElementTree as ET
 from typing import List, Dict
 
 import httpx
+from pydantic import ValidationError
 
 from recipe_agent.recipe import Recipe
 from recipe_agent import nextcloud
+from recipe_agent.utils import generate_recipe_uid
+
 
 # Konfiguration aus Umgebungsvariablen
 NEXTCLOUD_URL = os.getenv("NEXTCLOUD_URL")
@@ -29,7 +31,7 @@ WEBDAV_BASE_URL = f"{NEXTCLOUD_URL}/remote.php/dav/files/{NEXTCLOUD_USERNAME}/" 
 DAV_NS = {'d': 'DAV:'}
 
 
-async def get_all_recipes() -> List[Dict]:
+async def get_all_recipes() -> List[Recipe]:
     """Ruft alle Rezepte von Nextcloud ab
 
     Diese Funktion verwendet die WebDAV API, um alle recipe.json Dateien aus den Unterordnern des
@@ -44,7 +46,7 @@ async def get_all_recipes() -> List[Dict]:
         logging.error("Nextcloud-Konfiguration ist unvollständig. Bitte prüfen Sie Ihre .env-Datei.")
         return []
 
-    recipes: List[Dict] = []
+    recipes: List[Recipe] = list()
     async with httpx.AsyncClient(auth=(NEXTCLOUD_USERNAME, NEXTCLOUD_APP_PASSWORD)) as client:
         # Die URL für den PROPFIND-Request (der übergeordnete Ordner, der die Rezeptordner enthält)
         propfind_url = f"{WEBDAV_BASE_URL}{NEXTCLOUD_REMOTE_RECIPE_FOLDER}/"
@@ -99,15 +101,14 @@ async def get_all_recipes() -> List[Dict]:
                     try:
                         file_response = await client.get(full_file_url)
                         file_response.raise_for_status()
-                        recipe_data = json.loads(file_response.text)
-                        recipes.append(recipe_data)
+                        recipes.append(Recipe.model_validate_json(file_response.text, by_alias=True, strict=False))
                     except httpx.HTTPStatusError as exc:
                         logging.error(
                             f"  Fehler beim Herunterladen von {full_file_url}: HTTP {exc.response.status_code} - {exc.response.text.strip()}")
                     except httpx.RequestError as exc:
                         logging.error(f"  Fehler bei der Anfrage für {full_file_url}: {exc}")
-                    except json.JSONDecodeError as exc:
-                        logging.error(f"  Fehler beim Parsen von JSON aus {full_file_url}: {exc}")
+                    except ValidationError as exc:
+                        logging.error(f"  Fehler beim Validieren von JSON aus {full_file_url}: {exc}")
 
         except httpx.HTTPStatusError as exc:
             logging.error(
@@ -122,7 +123,7 @@ async def get_all_recipes() -> List[Dict]:
     return recipes
 
 
-async def create_put_recipe(recipe_instance: Recipe):
+async def create_put_recipe(recipe_instance: Recipe) -> nextcloud.NextcloudRecipe:
     """Erstellt oder aktualisiert ein Rezept auf Nextcloud über die WebDAV API
 
     Diese Funktion konvertiert ein Recipe-Objekt in ein NextcloudRecipe-Objekt, 
@@ -141,7 +142,6 @@ async def create_put_recipe(recipe_instance: Recipe):
 
     # Recipe in NextcloudRecipe umwandeln und lokale Dateien erstellen
     nextcloud_recipe = nextcloud.NextcloudRecipe(**recipe_instance.model_dump())
-    del recipe_instance
     nextcloud_recipe.create_recipe()
 
     # 2. WebDAV-Upload unabhängig von der lokalen Speicherung durchführen
@@ -184,12 +184,12 @@ async def create_put_recipe(recipe_instance: Recipe):
 
             if response.status_code == 201:  # 201 Created (für neue Datei)
                 logging.info(f"Rezept '{recipe_instance.name}' erfolgreich erstellt.")
+                await upload_recipe_images(nextcloud_recipe, client)
             elif response.status_code == 204:  # 204 No Content (für erfolgreiches Update)
                 logging.info(f"Rezept '{recipe_instance.name}' erfolgreich aktualisiert.")
             else:
                 logging.info(
                     f"Upload für Rezept '{recipe_instance.name}' beendet mit unerwartetem Status {response.status_code}.")
-
         except httpx.HTTPStatusError as exc:
             logging.error(
                 f"HTTP Fehler aufgetreten für {exc.request.url}: HTTP {exc.response.status_code} - {exc.response.text.strip()}")
@@ -198,8 +198,10 @@ async def create_put_recipe(recipe_instance: Recipe):
         except Exception as e:
             logging.error(f"Ein unerwarteter Fehler ist aufgetreten: {e}")
 
+    return nextcloud_recipe
 
-async def upload_recipe_images(nextcloud_recipe, safe_recipe_name: str, client: httpx.AsyncClient):
+
+async def upload_recipe_images(nextcloud_recipe: nextcloud.NextcloudRecipe, client: httpx.AsyncClient):
     """Lädt die Vorschaubilder eines Rezepts zu Nextcloud hoch
 
     Diese Funktion durchsucht das lokale Verzeichnis eines NextcloudRecipe-Objekts nach Bilddateien
@@ -207,24 +209,23 @@ async def upload_recipe_images(nextcloud_recipe, safe_recipe_name: str, client: 
 
     Args:
         nextcloud_recipe: Die NextcloudRecipe-Instanz, deren Bilder hochgeladen werden sollen
-        safe_recipe_name: Der sichere (URL-freundliche) Name des Rezeptordners auf dem Server
         client: Eine aktive httpx.AsyncClient-Instanz mit Authentifizierung
     """
-
-    if not nextcloud_recipe._directory or not nextcloud_recipe._directory.exists():
+    nxt_recipe_dir =  nextcloud_recipe.get_recipe_folder()
+    if not nxt_recipe_dir or not nxt_recipe_dir:
         return
 
     # Durchsuche das lokale Verzeichnis nach Bildern
-    for image_type in IMAGE_ATTR.keys():
+    for image_type in nextcloud.IMAGE_ATTR.keys():
         # Suche nach Bilddateien mit verschiedenen Erweiterungen
         for ext in [".jpg", ".jpeg", ".png", ".webp"]:
             image_name = f"{image_type}{ext}"
-            local_image_path = nextcloud_recipe._directory.joinpath(image_name)
+            local_image_path = nxt_recipe_dir.joinpath(image_name)
 
             if local_image_path.exists():
                 try:
                     # Pfad auf dem Nextcloud-Server
-                    remote_image_path = f"{NEXTCLOUD_REMOTE_RECIPE_FOLDER}/{safe_recipe_name}/{image_name}"
+                    remote_image_path = f"{NEXTCLOUD_REMOTE_RECIPE_FOLDER}/{nxt_recipe_dir.name}/{image_name}"
                     upload_url = f"{WEBDAV_BASE_URL}{remote_image_path}"
 
                     logging.info(f"Lade Bild hoch: {local_image_path} -> {upload_url}")
@@ -259,3 +260,35 @@ async def upload_recipe_images(nextcloud_recipe, safe_recipe_name: str, client: 
 
                 # Sobald ein Bild für diesen Typ gefunden und hochgeladen wurde, weiter zum nächsten Typ
                 break
+
+
+async def update_all_and_upload_recipe(recipe_instance: Recipe):
+    """Aktualisiert alle Nextcloud-Rezepte und lädt dann ein Rezept hoch
+
+    Diese Funktion ruft zunächst alle vorhandenen Rezepte von Nextcloud ab, um sicherzustellen,
+    dass die lokale Instanz auf dem neuesten Stand ist. Anschließend wird das übergebene
+    Rezept-Objekt auf den Nextcloud-Server hochgeladen.
+
+    Args:
+        recipe_instance: Die Recipe-Instanz, die hochgeladen werden soll
+
+    Returns:
+        bool: True, wenn der Upload erfolgreich war, sonst False
+    """
+    try:
+        # 1. Alle Rezepte von Nextcloud abrufen (Synchronisation)
+        logging.info("Aktualisiere lokale Rezepte von Nextcloud...")
+        recipes = await get_all_recipes()
+        logging.info(f"{len(recipes)} Rezepte von Nextcloud abgerufen.")
+
+        # 2. Unique ID erstellen
+        existing_ids = {r.id for r in recipes}
+        recipe_instance.id = generate_recipe_uid(False, existing_ids)
+
+        # 3. Das übergebene Rezept hochladen
+        logging.info(f"Lade Rezept '{recipe_instance.name}' hoch...")
+        await create_put_recipe(recipe_instance)
+        return True
+    except Exception as e:
+        logging.error(f"Fehler beim Aktualisieren der Rezepte und Hochladen: {e}")
+        return False

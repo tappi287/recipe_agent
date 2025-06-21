@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 
 from pydantic import BaseModel, Field, ConfigDict, ValidationError
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from recipe_agent.utils import generate_recipe_uid, convert_time_str
 
@@ -20,16 +20,16 @@ class Recipe(BaseModel):
     image_url: Optional[str] = Field(default=str(), alias="imageUrl")
     image: Optional[str] = ""
     print_image: bool = Field(default=True, alias="printImage")
-    prep_time: str = Field(default="PT0H30M0S", alias="prepTime")
-    cook_time: str = Field(default="PT1H30M0S", alias="cookTime")
-    total_time: str = Field(default="PT2H0M0S", alias="totalTime")
+    prep_time: Optional[str] = Field(default="PT0H30M0S", alias="prepTime")
+    cook_time: Optional[str] = Field(default="PT1H30M0S", alias="cookTime")
+    total_time: Optional[str] = Field(default="PT2H0M0S", alias="totalTime")
     recipe_category: str = Field(..., alias="recipeCategory")
     keywords: str = ""
     recipe_yield: int = Field(default=0, alias="recipeYield")
     tool: List[str] = Field(default_factory=list)
     recipe_ingredient: List[str] = Field(default_factory=list, alias="recipeIngredient")
     recipe_instructions: List[str] = Field(default_factory=list, alias="recipeInstructions")
-    nutrition: List[str] = Field(default_factory=list)
+    nutrition: Optional[Union[List[str], dict]] = Field(default_factory=list)
     date_created: str = Field(..., alias="dateCreated")
     date_modified: str = Field(..., alias="dateModified")
 

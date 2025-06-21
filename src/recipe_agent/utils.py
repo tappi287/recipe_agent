@@ -181,8 +181,8 @@ def parse_recipe(file: Path) -> dict:
         return dict()
 
 
-def generate_recipe_uid(use_nextcloud_recipe_filestore: bool = False):
-    existing_ids = set()
+def generate_recipe_uid(use_nextcloud_recipe_filestore: bool = False, existing_ids: set = None):
+    existing_ids = existing_ids or set()
     if use_nextcloud_recipe_filestore:
         for file in get_recipe_files():
             recipe_data = parse_recipe(file)
