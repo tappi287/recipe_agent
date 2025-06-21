@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import re
@@ -5,9 +6,12 @@ import os
 
 from crawl4ai import AsyncWebCrawler, CrawlResult
 
+from recipe_agent import recipe
+from recipe_agent.nextcloud_webdav import update_all_and_upload_recipe
 from recipe_agent.recipe import RecipeLLM
 from recipe_agent.openrouter_chat import openrouter_chat_request
 from recipe_agent.recipe_config import BASE_BROWSER, LL_EXTRACTION_STRATEGY, LLM_PROVIDER, CRAWL_CONFIG
+from recipe_agent.utils import exception_and_traceback
 
 
 async def process_with_openrouter(crawled_markdown: str, url: str) -> str:
@@ -34,7 +38,7 @@ async def process_with_openrouter(crawled_markdown: str, url: str) -> str:
     return response
 
 
-async def scrape_recipe(url):
+async def scrape_recipe(url, save: bool = False) -> recipe.Recipe:
     """ Scrape a web page for a cooking recipe and return the data structured by an LLM """
     data = None
 
@@ -68,4 +72,14 @@ async def scrape_recipe(url):
         else:
             logging.error("Error: %s", result.error_message)
 
-    return data
+    recipe_obj = recipe.construct_recipe_from_recipe_llm(recipe.RecipeLLM(**data))
+
+    # -- Save Recipe in another task
+    if save:
+        task = asyncio.create_task(update_all_and_upload_recipe(recipe_obj))
+        task.add_done_callback(
+            lambda t: logging.error(f"Background save failed: {exception_and_traceback(t.exception())}")
+            if t.exception() else None
+        )
+
+    return recipe_obj

@@ -77,7 +77,7 @@ def construct_recipe_from_recipe_llm(recipe_llm: RecipeLLM) -> Recipe:
     recipe_id = generate_recipe_uid()
 
     # Create a Recipe instance with the extracted fields and generated ID
-    recipe = Recipe(
+    return Recipe(
         id=recipe_id,
         name=recipe_llm.name,
         description=recipe_llm.description,
@@ -94,5 +94,3 @@ def construct_recipe_from_recipe_llm(recipe_llm: RecipeLLM) -> Recipe:
         date_created=datetime.now().isoformat(),  # Assuming default or extracting from RecipeLLM if available
         date_modified=datetime.now().isoformat(),  # Assuming default or extracting from RecipeLLM if available
     )
-
-    return recipe

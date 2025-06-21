@@ -32,7 +32,8 @@ class NextcloudRecipe(Recipe):
         logging.debug(f"Created Nextcloud Cookbook recipe files {self.name} at {self._directory}")
 
     def _create_recipe_folder(self, overwrite_recipe_dir: Optional[Path] = None) -> Optional[Path]:
-        recipe_base_dir = overwrite_recipe_dir or os.getenv("NEXTCLOUD_RECIPE_FOLDER", str())
+        app_base_dir = Path(__file__).parents[2]
+        recipe_base_dir = overwrite_recipe_dir or app_base_dir.joinpath(os.getenv("NEXTCLOUD_RECIPE_FOLDER", str()))
         try:
             recipe_base_dir = Path(recipe_base_dir)
             recipe_base_dir.mkdir(exist_ok=True)

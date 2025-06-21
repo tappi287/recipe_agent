@@ -2,7 +2,7 @@ import os
 
 from recipe_agent.chat_history import ChatHistory
 from recipe_agent.openrouter_chat import openrouter_chat_request
-from recipe_agent.recipe_config import LLM_PROVIDER
+from recipe_agent.recipe_config import LLM_PROVIDER, SAVE_RECIPE_TERM
 
 
 SYS_PROMPT_INSTRUCTIONS = """
@@ -20,8 +20,10 @@ enthielt.
 """
 
 SYS_PROMPT_LINK = """
-Du bist ein RezeptBot und kannst aus Links zu Webseiten Rezepte extrahieren.
+Du bist ein RezeptBot und kannst aus Links zu Webseiten Rezepte extrahieren. 
 """
+SYS_PROMPT_LINK += (f"Der Benutzer kann das Kürzel {SAVE_RECIPE_TERM} senden um Rezepte permanent "
+                    f"auf einer Nextcloud Instanz zu speichern.")
 
 def _create_sys_prompt(sys_prompt: str) -> str:
     return sys_prompt[1:] + SYS_PROMPT_INSTRUCTIONS[1:]
@@ -48,7 +50,8 @@ async def answer_message(username: str, message: str, history: ChatHistory):
 async def answer_message_with_link(username: str, message: str, history: ChatHistory):
     message = message[:2000]
     prompt = (f'Der Benutzer {username} hat einen Link mit Nachricht: \"{message}\" geschickt. '
-              f'Antworte sehr kurz das du dir den Link nun anschaust.')
+              f'Antworte sehr kurz das du dir den Link nun anschaust. Wenn die Nachricht "{SAVE_RECIPE_TERM}" enthält, '
+              f'bestätige das du das Rezept im Nextcloud Kochbuch speicherst.')
     history.add_user_message(username, prompt, _create_sys_prompt(SYS_PROMPT_LINK))
 
     response = await openrouter_chat_request(

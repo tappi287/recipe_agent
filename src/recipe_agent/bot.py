@@ -3,28 +3,25 @@ import logging
 import os
 import re
 import time
-from collections import defaultdict
 from typing import List
 
 from telegram import Update, LinkPreviewOptions
 from telegram.error import NetworkError, TimedOut
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, Defaults
 
-from recipe_agent import recipe
 from recipe_agent.agents import recipe_agent, chat_agent
+from recipe_agent.recipe_config import SAVE_RECIPE_TERM
 from recipe_agent.chat_history import ChatHistory
 from recipe_agent.utils import to_md_recipe, exception_and_traceback
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-JOBS = defaultdict(list)
 
 # Set Defaults
 DEFAULTS = Defaults(
     link_preview_options=LinkPreviewOptions(is_disabled=True)
 )
 BOT_AI_CHAT_HISTORY = ChatHistory(max_history_length=10)
+
 
 async def answer_message_with_dots(update, username, message_text, initial_message):
     # Send initial message
@@ -71,6 +68,7 @@ async def _process_recipe(update: Update, urls: List[str], message_text: str):
     response = await chat_agent.answer_message_with_link(
         username, message_text, BOT_AI_CHAT_HISTORY
     )
+    save: bool = True if SAVE_RECIPE_TERM in message_text else False
     answer = await update.message.reply_text(response)
 
     for url in urls:
@@ -78,9 +76,7 @@ async def _process_recipe(update: Update, urls: List[str], message_text: str):
 
         # Extract
         try:
-            recipe_llm_data = await recipe_agent.scrape_recipe(url)
-            recipe_obj = recipe.construct_recipe_from_recipe_llm(recipe.RecipeLLM(**recipe_llm_data))
-            JOBS[update.effective_chat.id].append(recipe_obj)
+            recipe_obj = await recipe_agent.scrape_recipe(url, save)
         except Exception as e:
             logging.error(f"Error creating recipe: {exception_and_traceback(e)}")
             await update.message.reply_text("Etwas ist schiefgelaufen. Versuch es später nochmal!")
@@ -114,7 +110,8 @@ async def rezept(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         'Hey! Ich bin dein RezeptBot! Schicke mir Links zu Rezepten und ich schicke dir die Zutaten und '
-        'Zubereitung ohne das Drumherum.'
+        f'Zubereitung ohne das Drumherum. Schreibe {SAVE_RECIPE_TERM} '
+        f'dazu wenn du das Rezept speichern möchtest.'
     )
 
 

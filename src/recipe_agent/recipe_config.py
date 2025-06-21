@@ -3,6 +3,8 @@ from crawl4ai import BrowserConfig, CrawlerRunConfig, CacheMode, LLMExtractionSt
 from recipe_agent.recipe import RecipeLLM
 
 
+SAVE_RECIPE_TERM = "!save"
+
 BASE_BROWSER = BrowserConfig(
     browser_type="chromium",
     headless=True,
