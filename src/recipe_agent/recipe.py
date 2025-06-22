@@ -54,6 +54,21 @@ class RecipeLLM(BaseModel):
         super().__init__(**kwargs)
         self._parse_instructions()
 
+    @classmethod
+    def get_in_openai_format(cls) -> dict:
+        data = cls.model_json_schema(by_alias=True)
+        title = "Formatted Response"
+        if "title" in data:
+            data.pop("title")
+
+        return {
+            "type": "json_schema",  # json_object for deepinfra
+            "json_schema": {
+                "name": title,
+                "strict": True,
+                "schema": data
+            }}
+
     def _parse_instructions(self):
         updated_instructions = list()
 

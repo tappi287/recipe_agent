@@ -31,7 +31,7 @@ async def process_with_openrouter(crawled_markdown: str, url: str) -> str:
     response = await openrouter_chat_request(
         LLM_PROVIDER,
         [message],
-        RecipeLLM.model_json_schema(by_alias=True),
+        RecipeLLM.get_in_openai_format(),
         LL_EXTRACTION_STRATEGY.extra_args,
     )
 

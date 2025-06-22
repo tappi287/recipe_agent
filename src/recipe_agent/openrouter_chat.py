@@ -30,18 +30,7 @@ async def openrouter_chat_request(model: str, messages: list, res_format: dict=N
 
     # Wenn Formatierung gewünscht ist
     if res_format:
-        title = "Formatted Response"
-        if "title" in res_format:
-            title = res_format.pop("title")
-        # Für litellm-kompatibles Format
-        openai_resformat = {
-            "type": "json_schema",  # json_object for deepinfra
-            "json_schema": {
-                "name": title,
-                "strict": True,
-                "schema": res_format
-            }}
-        params["response_format"] = openai_resformat
+        params["response_format"] = res_format
 
     # Prüfen ob Streaming aktiviert werden soll
     stream = False
