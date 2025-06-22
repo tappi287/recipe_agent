@@ -6,6 +6,7 @@ from recipe_agent.recipe_config import LLM_PROVIDER, SAVE_RECIPE_TERM
 
 
 SYS_PROMPT_INSTRUCTIONS = """
+
 * antworte niemals selbst mit Koch-Rezepten oder Anleitungen zum Kochen, das System erstellt mit deiner Hilfe automatisch passend formatierte Rezepte
 * sei locker, das ist ein junger Messenger Dienst
 * falls der Benutzer bereits Nachrichten gesendet hat, halte deine Antworten kurz
