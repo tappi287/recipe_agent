@@ -70,6 +70,10 @@ class NextcloudRecipe(Recipe):
             recipe_img = self._directory.joinpath(img_name)
             resize_and_crop_image(temp_file, recipe_img, max_size)
 
+        # Set cookbook image url
+        self.image = link_preview_image
+        self.image_url = f"/apps/cookbook/webapp/recipes/{self.id}/image?size=full"
+
     def _create_recipe_data(self):
         with open(self._directory.joinpath('recipe.json'), "w", encoding="utf-8") as f:
             f.write(self.model_dump_json(indent=4, by_alias=True))
