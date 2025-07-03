@@ -137,15 +137,15 @@ wheels = [
 
 [[package]]
 name = "beautifulsoup4"
-version = "4.13.3"
+version = "4.13.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "soupsieve" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f0/3c/adaf39ce1fb4afdd21b611e3d530b183bb7759c9b673d60db0e347fd4439/beautifulsoup4-4.13.3.tar.gz", hash = "sha256:1bd32405dacc920b42b83ba01644747ed77456a65760e285fbc47633ceddaf8b", size = 619516 }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/e4/0c4c39e18fd76d6a628d4dd8da40543d136ce2d1752bd6eeeab0791f4d6b/beautifulsoup4-4.13.4.tar.gz", hash = "sha256:dbb3c4e1ceae6aefebdaf2423247260cd062430a410e38c66f2baa50a8437195", size = 621067 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f9/49/6abb616eb3cbab6a7cca303dc02fdf3836de2e0b834bf966a7f5271a34d8/beautifulsoup4-4.13.3-py3-none-any.whl", hash = "sha256:99045d7d3f08f91f0d656bc9b7efbae189426cd913d830294a15eefa0ea4df16", size = 186015 },
+    { url = "https://files.pythonhosted.org/packages/50/cd/30110dc0ffcf3b131156077b90e9f60ed75711223f306da4db08eff8403b/beautifulsoup4-4.13.4-py3-none-any.whl", hash = "sha256:9bbbb14bfde9d79f38b8cd5f8c7c85f4b8f2523190ebed90e950a8dea4cb1c4b", size = 187285 },
 ]
 
 [[package]]
@@ -186,6 +186,26 @@ css = [
 ]
 
 [[package]]
+name = "brotli"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2f/c2/f9e977608bdf958650638c3f1e28f85a1b075f075ebbe77db8555463787b/Brotli-1.1.0.tar.gz", hash = "sha256:81de08ac11bcb85841e440c13611c00b67d3bf82698314928d0b676362546724", size = 7372270 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0a/9f/fb37bb8ffc52a8da37b1c03c459a8cd55df7a57bdccd8831d500e994a0ca/Brotli-1.1.0-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:8bf32b98b75c13ec7cf774164172683d6e7891088f6316e54425fde1efc276d5", size = 815681 },
+    { url = "https://files.pythonhosted.org/packages/06/b3/dbd332a988586fefb0aa49c779f59f47cae76855c2d00f450364bb574cac/Brotli-1.1.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:7bc37c4d6b87fb1017ea28c9508b36bbcb0c3d18b4260fcdf08b200c74a6aee8", size = 422475 },
+    { url = "https://files.pythonhosted.org/packages/bb/80/6aaddc2f63dbcf2d93c2d204e49c11a9ec93a8c7c63261e2b4bd35198283/Brotli-1.1.0-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3c0ef38c7a7014ffac184db9e04debe495d317cc9c6fb10071f7fefd93100a4f", size = 2906173 },
+    { url = "https://files.pythonhosted.org/packages/ea/1d/e6ca79c96ff5b641df6097d299347507d39a9604bde8915e76bf026d6c77/Brotli-1.1.0-cp313-cp313-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:91d7cc2a76b5567591d12c01f019dd7afce6ba8cba6571187e21e2fc418ae648", size = 2943803 },
+    { url = "https://files.pythonhosted.org/packages/ac/a3/d98d2472e0130b7dd3acdbb7f390d478123dbf62b7d32bda5c830a96116d/Brotli-1.1.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a93dde851926f4f2678e704fadeb39e16c35d8baebd5252c9fd94ce8ce68c4a0", size = 2918946 },
+    { url = "https://files.pythonhosted.org/packages/c4/a5/c69e6d272aee3e1423ed005d8915a7eaa0384c7de503da987f2d224d0721/Brotli-1.1.0-cp313-cp313-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:f0db75f47be8b8abc8d9e31bc7aad0547ca26f24a54e6fd10231d623f183d089", size = 2845707 },
+    { url = "https://files.pythonhosted.org/packages/58/9f/4149d38b52725afa39067350696c09526de0125ebfbaab5acc5af28b42ea/Brotli-1.1.0-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:6967ced6730aed543b8673008b5a391c3b1076d834ca438bbd70635c73775368", size = 2936231 },
+    { url = "https://files.pythonhosted.org/packages/5a/5a/145de884285611838a16bebfdb060c231c52b8f84dfbe52b852a15780386/Brotli-1.1.0-cp313-cp313-musllinux_1_2_i686.whl", hash = "sha256:7eedaa5d036d9336c95915035fb57422054014ebdeb6f3b42eac809928e40d0c", size = 2848157 },
+    { url = "https://files.pythonhosted.org/packages/50/ae/408b6bfb8525dadebd3b3dd5b19d631da4f7d46420321db44cd99dcf2f2c/Brotli-1.1.0-cp313-cp313-musllinux_1_2_ppc64le.whl", hash = "sha256:d487f5432bf35b60ed625d7e1b448e2dc855422e87469e3f450aa5552b0eb284", size = 3035122 },
+    { url = "https://files.pythonhosted.org/packages/af/85/a94e5cfaa0ca449d8f91c3d6f78313ebf919a0dbd55a100c711c6e9655bc/Brotli-1.1.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:832436e59afb93e1836081a20f324cb185836c617659b07b129141a8426973c7", size = 2930206 },
+    { url = "https://files.pythonhosted.org/packages/c2/f0/a61d9262cd01351df22e57ad7c34f66794709acab13f34be2675f45bf89d/Brotli-1.1.0-cp313-cp313-win32.whl", hash = "sha256:43395e90523f9c23a3d5bdf004733246fba087f2948f87ab28015f12359ca6a0", size = 333804 },
+    { url = "https://files.pythonhosted.org/packages/7e/c1/ec214e9c94000d1c1974ec67ced1c970c148aa6b8d8373066123fc3dbf06/Brotli-1.1.0-cp313-cp313-win_amd64.whl", hash = "sha256:9011560a466d2eb3f5a6e4929cf4a09be405c64154e12df0dd72713f6500e32b", size = 358517 },
+]
+
+[[package]]
 name = "certifi"
 version = "2025.6.15"
 source = { registry = "https://pypi.org/simple" }
@@ -214,6 +234,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f1/47/d7145bf2dc04684935d57d67dff9d6d795b2ba2796806bb109864be3a151/cffi-1.17.1-cp313-cp313-musllinux_1_1_x86_64.whl", hash = "sha256:72e72408cad3d5419375fc87d289076ee319835bdfa2caad331e377589aebba9", size = 488469 },
     { url = "https://files.pythonhosted.org/packages/bf/ee/f94057fa6426481d663b88637a9a10e859e492c73d0384514a17d78ee205/cffi-1.17.1-cp313-cp313-win32.whl", hash = "sha256:e03eab0a8677fa80d646b5ddece1cbeaf556c313dcfac435ba11f107ba117b5d", size = 172475 },
     { url = "https://files.pythonhosted.org/packages/7c/fc/6a8cb64e5f0324877d503c854da15d76c1e50eb722e320b15345c4d0c6de/cffi-1.17.1-cp313-cp313-win_amd64.whl", hash = "sha256:f6a16c31041f09ead72d69f583767292f750d24913dadacf5756b966aacb3f1a", size = 182009 },
+]
+
+[[package]]
+name = "chardet"
+version = "5.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/0d/f7b6ab21ec75897ed80c17d79b15951a719226b9fababf1e40ea74d69079/chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7", size = 2069618 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/6f/f5fbc992a329ee4e0f288c1fe0e2ad9485ed064cac731ed2fe47dcc38cbf/chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970", size = 199385 },
 ]
 
 [[package]]
@@ -261,16 +290,21 @@ wheels = [
 
 [[package]]
 name = "crawl4ai"
-version = "0.4.248"
+version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
+    { name = "aiohttp" },
     { name = "aiosqlite" },
     { name = "beautifulsoup4" },
+    { name = "brotli" },
+    { name = "chardet" },
+    { name = "click" },
     { name = "colorama" },
     { name = "cssselect" },
     { name = "fake-useragent" },
     { name = "httpx" },
+    { name = "humanize" },
     { name = "litellm" },
     { name = "lxml" },
     { name = "nltk" },
@@ -280,6 +314,7 @@ dependencies = [
     { name = "psutil" },
     { name = "pydantic" },
     { name = "pyopenssl" },
+    { name = "pyperclip" },
     { name = "python-dotenv" },
     { name = "rank-bm25" },
     { name = "requests" },
@@ -288,9 +323,9 @@ dependencies = [
     { name = "tf-playwright-stealth" },
     { name = "xxhash" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/67/3a/fb6783049f6d3f8c93e2c14f0d18833fe4b09d2f72f7599fd9f3713a0d10/crawl4ai-0.4.248.tar.gz", hash = "sha256:ae0da8d4bbde09a9985a9f5797ed351172adc82df1266cf55ef10526abf66e46", size = 182284 }
+sdist = { url = "https://files.pythonhosted.org/packages/26/49/724fdfcf40402fb60888cc166270f678b3308a7d0620fe6480152d8824f5/crawl4ai-0.6.3.tar.gz", hash = "sha256:38e32222969e228c57959b0dbdbef619c2cd7850960ef26a6155ce05c3bb4a2a", size = 296511 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/16/3ea0e1ee2ffcf8a934d9dddd687b056d6e3623b8cc502565edfc46ca668c/Crawl4AI-0.4.248-py3-none-any.whl", hash = "sha256:b98eed27d0215cfe69faa59e922b04e131c8683a07def08097075140ec71a549", size = 182922 },
+    { url = "https://files.pythonhosted.org/packages/65/99/8827df941ebbe256a25f08a4915403de897459b14a0d43c4c4871cf51d75/crawl4ai-0.6.3-py3-none-any.whl", hash = "sha256:c3590a3f6e5d1e636c02f7f8ede8d63cdc83cb3fee892333b8626df3106f6391", size = 292755 },
 ]
 
 [[package]]
@@ -571,6 +606,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/91/8a/1362d565fefabaa4185cf3ae842a98dbc5b35146f5694f7080f043a6952f/huggingface_hub-0.33.0.tar.gz", hash = "sha256:aa31f70d29439d00ff7a33837c03f1f9dd83971ce4e29ad664d63ffb17d3bb97", size = 426179 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/33/fb/53587a89fbc00799e4179796f51b3ad713c5de6bb680b2becb6d37c94649/huggingface_hub-0.33.0-py3-none-any.whl", hash = "sha256:e8668875b40c68f9929150d99727d39e5ebb8a05a98e4191b908dc7ded9074b3", size = 514799 },
+]
+
+[[package]]
+name = "humanize"
+version = "4.12.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/22/d1/bbc4d251187a43f69844f7fd8941426549bbe4723e8ff0a7441796b0789f/humanize-4.12.3.tar.gz", hash = "sha256:8430be3a615106fdfceb0b2c1b41c4c98c6b0fc5cc59663a5539b111dd325fb0", size = 80514 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a0/1e/62a2ec3104394a2975a2629eec89276ede9dbe717092f6966fcf963e1bf0/humanize-4.12.3-py3-none-any.whl", hash = "sha256:2cbf6370af06568fa6d2da77c86edb7886f3160ecd19ee1ffef07979efc597f6", size = 128487 },
 ]
 
 [[package]]
@@ -1364,6 +1408,12 @@ wheels = [
 ]
 
 [[package]]
+name = "pyperclip"
+version = "1.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/30/23/2f0a3efc4d6a32f3b63cdff36cd398d9701d26cda58e3ab97ac79fb5e60d/pyperclip-1.9.0.tar.gz", hash = "sha256:b7de0142ddc81bfc5c7507eea19da920b92252b548b96186caf94a5e2527d310", size = 20961 }
+
+[[package]]
 name = "pytest"
 version = "8.4.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1414,14 +1464,14 @@ wheels = [
 
 [[package]]
 name = "python-telegram-bot"
-version = "21.11.1"
+version = "22.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4c/74/3ebdc3ee2c323b4577fcc57542f71aa064ac9dac154af0c2f5805e1b9fbd/python_telegram_bot-21.11.1.tar.gz", hash = "sha256:2abda5202f27a838f35e8140e5292af0f4f8fad6c2e5123b2defadd5f4e8ca02", size = 442624 }
+sdist = { url = "https://files.pythonhosted.org/packages/52/a5/59e8d771e332105b7acbd48ff7b7f0415f9d50c32bac46963f487cc6cf94/python_telegram_bot-22.2.tar.gz", hash = "sha256:20dc096673961b849c041814d9618a3c7036dcca73015e576293600234457482", size = 1453202 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/3b/8f6372e580ba4514335873f64924eb80b80c3d3f8359c2bb2e07bb6d01b9/python_telegram_bot-21.11.1-py3-none-any.whl", hash = "sha256:17f933a7a0569f519d9b672e06d71c29ab3688f1ec575ba59a3ca37922481113", size = 676058 },
+    { url = "https://files.pythonhosted.org/packages/7b/3e/3ea0241bccb204b740af5755e1b3a106ae2c36252b6f888872c45810e936/python_telegram_bot-22.2-py3-none-any.whl", hash = "sha256:234b933f960c534ffb2679f4d1e937bae24b4ac1c4767b6b03754bd38640cec0", size = 708737 },
 ]
 
 [[package]]
@@ -1495,7 +1545,7 @@ wheels = [
 
 [[package]]
 name = "recipe-agent"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -1516,12 +1566,12 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "beautifulsoup4", specifier = ">=4.13.3" },
-    { name = "crawl4ai", specifier = ">=0.4.248" },
+    { name = "beautifulsoup4", specifier = ">=4.13.4" },
+    { name = "crawl4ai", specifier = ">=0.6.3" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "linkpreview", specifier = ">=0.11.0" },
     { name = "pydantic", specifier = ">=2.10.6" },
-    { name = "python-telegram-bot", specifier = "==21.11.1" },
+    { name = "python-telegram-bot", specifier = "==22.2" },
 ]
 
 [package.metadata.requires-dev]

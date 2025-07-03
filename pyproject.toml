@@ -1,15 +1,15 @@
 [project]
 name = "recipe_agent"
-version = "0.1.0"
+version = "0.1.1"
 description = "Add your description here"
 requires-python = ">=3.13"
 dependencies = [
-    "beautifulsoup4>=4.13.3",
-    "crawl4ai>=0.4.248",
+    "beautifulsoup4>=4.13.4",
+    "crawl4ai>=0.6.3",
     "dotenv>=0.9.9",
     "linkpreview>=0.11.0",
     "pydantic>=2.10.6",
-    "python-telegram-bot==21.11.1",
+    "python-telegram-bot==22.2",
 ]
 
 [project.scripts]
