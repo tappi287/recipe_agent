@@ -63,12 +63,19 @@ async def _chat(update: Update, message_text):
         await update.message.reply_text(response)
 
 
-async def _process_recipe(update: Update, urls: List[str], message_text: str):
+async def _process_recipe(update: Update, urls: List[str], message_text: str, just_save: bool):
     username = update.effective_user.first_name or "Du"
-    response = await chat_agent.answer_message_with_link(
-        username, message_text, BOT_AI_CHAT_HISTORY
-    )
-    save: bool = True if SAVE_RECIPE_TERM in message_text else False
+    save: bool = True if SAVE_RECIPE_TERM in message_text or just_save else False
+
+    if not just_save:
+        # -- Respond dynamically that we are scraping
+        response = await chat_agent.answer_message_with_link(
+            username, message_text, BOT_AI_CHAT_HISTORY
+        )
+    else:
+        # -- Respond static so we get quicker to save
+        response = "Rezept wird abgerufen und gespeichert"
+
     answer = await update.message.reply_text(response)
 
     for url in urls:
@@ -85,15 +92,27 @@ async def _process_recipe(update: Update, urls: List[str], message_text: str):
 
         dot_task.cancel()
 
-        markdown_recipe = to_md_recipe(recipe_obj)
-        BOT_AI_CHAT_HISTORY.add_assistant_response(username, markdown_recipe)
-        await update.message.reply_markdown_v2(
-            markdown_recipe
-        )
+        if not just_save:
+            markdown_recipe = to_md_recipe(recipe_obj)
+            BOT_AI_CHAT_HISTORY.add_assistant_response(username, markdown_recipe)
+            await update.message.reply_markdown_v2(
+                markdown_recipe
+            )
+        else:
+            prompt = (f"Der Benutzer {username} hatte das speichern des zuletzt gesendeten Rezeptes angefragt. "
+                      f"Antworte das dass Speichern nun im Hintergrund erfolgt. "
+                      f"Seine Nachricht war: {message_text}")
+            await update.message.reply_text(
+                await chat_agent.answer_message(username, message_text, BOT_AI_CHAT_HISTORY, prompt)
+            )
 
 
 async def rezept(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     urls, message_text = list(), str()
+    if not hasattr(update, "message"):
+        # Update does not contain a (new) message
+        return
+
     if update.message.chat.type == 'group':
         pass
 
@@ -101,8 +120,15 @@ async def rezept(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         message_text = update.message.text or ""
         urls = re.findall(r'https?://\S+', message_text)
 
+    save: bool = True if SAVE_RECIPE_TERM in message_text else False
+    just_save = False
+    if save and not urls:
+        urls = BOT_AI_CHAT_HISTORY.get_last_message_with_url(update.effective_user.first_name)
+        # User has seen the recipe, just save and confirm
+        just_save = True
+
     if urls:
-        await _process_recipe(update, urls, message_text)
+        await _process_recipe(update, urls, message_text, just_save)
     else:
         await _chat(update, message_text)
 

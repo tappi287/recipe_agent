@@ -10,13 +10,13 @@ BASE_BROWSER = BrowserConfig(
     headless=True,
     text_mode=True
 )
+
 LLM_PROVIDER="openrouter/mistralai/mistral-nemo:free"
 # LLM_PROVIDER="meta-llama/llama-3.3-8b-instruct:free"
 
 # LLM_CONFIG = LLMConfig(provider=LLM_PROVIDER)
 LL_EXTRACTION_STRATEGY = LLMExtractionStrategy(
     # llm_config=LLM_CONFIG,
-    provider=LLM_PROVIDER,
     extraction_type="schema",
     schema=RecipeLLM.model_json_schema(by_alias=True),
     instruction="Extract a cooking recipe from the given context.\n"
@@ -41,5 +41,5 @@ CRAWL_CONFIG = CrawlerRunConfig(
     extraction_strategy=LL_EXTRACTION_STRATEGY,
     word_count_threshold=1,
     exclude_external_links=True,
-    cache_mode=CacheMode.ENABLED
+    cache_mode=CacheMode.DISABLED
 )
