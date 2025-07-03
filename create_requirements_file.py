@@ -4,7 +4,7 @@ def create_requirements_txt(path="requirements.txt"):
     """Erstellt eine requirements.txt-Datei mit UV"""
     try:
         result = subprocess.run(
-            ["uv", "pip", "freeze", "--exclude-editable"],
+            ["uv", "export", "--no-editable", "--no-hashes", "--no-dev"],
             capture_output=True, 
             text=True, 
             check=True
