@@ -135,7 +135,7 @@ async def search_agent(query: str) -> str:
         )
         AGENT_HISTORY.add_user_message(USER, prompt)
 
-        response = await openrouter_chat_request(LLM_MODEL, AGENT_HISTORY.get_messages(USER),
+        response = await openrouter_chat_request(LLM_PROVIDER, AGENT_HISTORY.get_messages(USER),
                                                  options={'stream': True, "temperature": 0.1, "max_tokens": 16384,
                                                           # "num_ctx": 16384
                                                           })

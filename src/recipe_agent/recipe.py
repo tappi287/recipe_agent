@@ -2,7 +2,7 @@ import logging
 import re
 from datetime import datetime
 
-from pydantic import BaseModel, Field, ConfigDict, ValidationError
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Union
 
 from recipe_agent.utils import generate_recipe_uid, convert_time_str
@@ -98,14 +98,14 @@ def construct_recipe_from_recipe_llm(recipe_llm: RecipeLLM) -> Recipe:
         description=recipe_llm.description,
         url=recipe_llm.url,
         image=recipe_llm.image_url,
-        prep_time=recipe_llm.prep_time,  # Assuming default or extracting from RecipeLLM if available
-        cook_time=recipe_llm.cook_time,  # Assuming default or extracting from RecipeLLM if available
-        total_time=recipe_llm.total_time,  # Assuming default or extracting from RecipeLLM if available
-        recipe_category="",  # Assuming default or extracting from RecipeLLM if available
+        prepTime=recipe_llm.prep_time,  # Assuming default or extracting from RecipeLLM if available
+        cookTime=recipe_llm.cook_time,  # Assuming default or extracting from RecipeLLM if available
+        totalTime=recipe_llm.total_time,  # Assuming default or extracting from RecipeLLM if available
+        recipeCategory="",  # Assuming default or extracting from RecipeLLM if available
         keywords=','.join(recipe_llm.keywords),  # Assuming default or extracting from RecipeLLM if available
-        recipe_yield=1,  # Assuming default or extracting from RecipeLLM if available
-        recipe_ingredient=recipe_llm.recipe_ingredient,
-        recipe_instructions=recipe_llm.recipe_instructions,
-        date_created=datetime.now().isoformat(),  # Assuming default or extracting from RecipeLLM if available
-        date_modified=datetime.now().isoformat(),  # Assuming default or extracting from RecipeLLM if available
+        recipeYield=1,  # Assuming default or extracting from RecipeLLM if available
+        recipeIngredient=recipe_llm.recipe_ingredient,
+        recipeInstructions=recipe_llm.recipe_instructions,
+        dateCreated=datetime.now().isoformat(),  # Assuming default or extracting from RecipeLLM if available
+        dateModified=datetime.now().isoformat(),  # Assuming default or extracting from RecipeLLM if available
     )

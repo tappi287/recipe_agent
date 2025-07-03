@@ -2,12 +2,11 @@ import asyncio
 import json
 import logging
 import re
-import os
 
 from crawl4ai import AsyncWebCrawler, CrawlResult
 
 from recipe_agent import recipe
-from recipe_agent.nextcloud_webdav import update_all_and_upload_recipe
+from recipe_agent.io.nextcloud_webdav import update_all_and_upload_recipe
 from recipe_agent.recipe import RecipeLLM
 from recipe_agent.openrouter_chat import openrouter_chat_request
 from recipe_agent.recipe_config import BASE_BROWSER, LL_EXTRACTION_STRATEGY, LLM_PROVIDER, CRAWL_CONFIG

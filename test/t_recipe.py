@@ -5,7 +5,7 @@ import pytest
 
 from conftest import URLS
 from recipe_agent.agents.recipe_agent import scrape_recipe
-from recipe_agent.recipe import Recipe, RecipeLLM, construct_recipe_from_recipe_llm
+from recipe_agent.recipe import Recipe
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', stream=sys.stdout)
 

@@ -4,19 +4,17 @@ Dieses Modul stellt Funktionen bereit, um mit der Nextcloud WebDAV API zu intera
 Es ermöglicht das Abrufen und Hochladen von Rezepten über die WebDAV-Schnittstelle.
 """
 
-import json
 import logging
 import os
 import xml.etree.ElementTree as ET
-from typing import List, Dict
+from typing import List
 
 import httpx
 from pydantic import ValidationError
 
+from recipe_agent.io import nextcloud
 from recipe_agent.recipe import Recipe
-from recipe_agent import nextcloud
 from recipe_agent.utils import generate_recipe_uid
-
 
 # Konfiguration aus Umgebungsvariablen
 NEXTCLOUD_URL = os.getenv("NEXTCLOUD_URL")

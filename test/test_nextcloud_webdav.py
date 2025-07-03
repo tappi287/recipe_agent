@@ -6,7 +6,7 @@ from datetime import datetime
 import pytest
 
 from recipe_agent.recipe import Recipe
-from recipe_agent.nextcloud_webdav import get_all_recipes, create_put_recipe, update_all_and_upload_recipe
+from recipe_agent.io.nextcloud_webdav import get_all_recipes, create_put_recipe, update_all_and_upload_recipe
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', stream=sys.stdout)
 
