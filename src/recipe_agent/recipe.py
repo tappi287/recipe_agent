@@ -10,28 +10,49 @@ from recipe_agent.utils import generate_recipe_uid, convert_time_str
 TIME_PATTERN = re.compile(r"PT\d\d?H\d\d?M\d\d?S")
 
 
+class Nutrition(BaseModel):
+    """Nutrition information according to schema.org"""
+    type_: str = Field(default="NutritionInformation", alias="@type")
+    calories: Optional[str] = None
+    carbohydrate_content: Optional[str] = Field(default=None, alias="carbohydrateContent")
+    cholesterol_content: Optional[str] = Field(default=None, alias="cholesterolContent")
+    fat_content: Optional[str] = Field(default=None, alias="fatContent")
+    fiber_content: Optional[str] = Field(default=None, alias="fiberContent")
+    protein_content: Optional[str] = Field(default=None, alias="proteinContent")
+    saturated_fat_content: Optional[str] = Field(default=None, alias="saturatedFatContent")
+    serving_size: Optional[str] = Field(default=None, alias="servingSize")
+    sodium_content: Optional[str] = Field(default=None, alias="sodiumContent")
+    sugar_content: Optional[str] = Field(default=None, alias="sugarContent")
+    trans_fat_content: Optional[str] = Field(default=None, alias="transFatContent")
+    unsaturated_fat_content: Optional[str] = Field(default=None, alias="unsaturatedFatContent")
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+
 class Recipe(BaseModel):
     context: str = Field(default="http://schema.org", alias="@context")
     type_: str = Field(default="Recipe", alias="@type")
-    id: int = 0
+    id: str = Field(default="0")
     name: str = ""
-    description: Optional[str] = None
-    url: Optional[str] = None
-    image_url: Optional[str] = Field(default=str(), alias="imageUrl")
-    image: Optional[str] = ""
-    print_image: bool = Field(default=True, alias="printImage")
-    prep_time: Optional[str] = Field(default="PT0H30M0S", alias="prepTime")
-    cook_time: Optional[str] = Field(default="PT1H30M0S", alias="cookTime")
-    total_time: Optional[str] = Field(default="PT2H0M0S", alias="totalTime")
-    recipe_category: str = Field(..., alias="recipeCategory")
-    keywords: str = ""
-    recipe_yield: int = Field(default=0, alias="recipeYield")
+    description: str = Field(default="")
+    url: str = Field(default="")
+    image_url: str = Field(default="", alias="imageUrl")
+    image_placeholder_url: str = Field(default="", alias="imagePlaceholderUrl")
+    image: str = Field(default="")
+    prep_time: Optional[str] = Field(default=None, alias="prepTime")
+    cook_time: Optional[str] = Field(default=None, alias="cookTime")
+    total_time: Optional[str] = Field(default=None, alias="totalTime")
+    recipe_category: str = Field(default="", alias="recipeCategory")
+    keywords: str = Field(default="")
+    recipe_yield: int = Field(default=1, alias="recipeYield")
     tool: List[str] = Field(default_factory=list)
     recipe_ingredient: List[str] = Field(default_factory=list, alias="recipeIngredient")
     recipe_instructions: List[str] = Field(default_factory=list, alias="recipeInstructions")
-    nutrition: Optional[Union[List[str], dict]] = Field(default_factory=list)
-    date_created: str = Field(..., alias="dateCreated")
-    date_modified: str = Field(..., alias="dateModified")
+    nutrition: Optional[Union[List, Nutrition]] = Field(default_factory=list)
+    date_created: str = Field(default_factory=lambda: datetime.now().isoformat(), alias="dateCreated")
+    date_modified: Optional[str] = Field(default=None, alias="dateModified")
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -89,7 +110,7 @@ class RecipeLLM(BaseModel):
 
 def construct_recipe_from_recipe_llm(recipe_llm: RecipeLLM) -> Recipe:
     # Generate a unique ID for the recipe
-    recipe_id = generate_recipe_uid()
+    recipe_id = str(generate_recipe_uid())
 
     # Create a Recipe instance with the extracted fields and generated ID
     return Recipe(
@@ -98,14 +119,16 @@ def construct_recipe_from_recipe_llm(recipe_llm: RecipeLLM) -> Recipe:
         description=recipe_llm.description,
         url=recipe_llm.url,
         image=recipe_llm.image_url,
-        prepTime=recipe_llm.prep_time,  # Assuming default or extracting from RecipeLLM if available
-        cookTime=recipe_llm.cook_time,  # Assuming default or extracting from RecipeLLM if available
-        totalTime=recipe_llm.total_time,  # Assuming default or extracting from RecipeLLM if available
-        recipeCategory="",  # Assuming default or extracting from RecipeLLM if available
-        keywords=','.join(recipe_llm.keywords),  # Assuming default or extracting from RecipeLLM if available
-        recipeYield=1,  # Assuming default or extracting from RecipeLLM if available
+        imageUrl=recipe_llm.image_url,
+        imagePlaceholderUrl="",  # Default empty string as per schema
+        prepTime=recipe_llm.prep_time,
+        cookTime=recipe_llm.cook_time,
+        totalTime=recipe_llm.total_time,
+        recipeCategory="",  # Default empty string as per schema
+        keywords=','.join(recipe_llm.keywords),
+        recipeYield=1,  # Default value as per schema
         recipeIngredient=recipe_llm.recipe_ingredient,
         recipeInstructions=recipe_llm.recipe_instructions,
-        dateCreated=datetime.now().isoformat(),  # Assuming default or extracting from RecipeLLM if available
-        dateModified=datetime.now().isoformat(),  # Assuming default or extracting from RecipeLLM if available
+        dateCreated=datetime.now().isoformat(),
+        dateModified=datetime.now().isoformat(),
     )

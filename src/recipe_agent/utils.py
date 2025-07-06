@@ -6,7 +6,7 @@ import re
 import tempfile
 import traceback
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Set, Union
 from urllib.parse import urlparse
 
 import requests
@@ -181,15 +181,15 @@ def parse_recipe(file: Path) -> dict:
         return dict()
 
 
-def generate_recipe_uid(use_nextcloud_recipe_filestore: bool = False, existing_ids: set = None):
-    existing_ids = existing_ids or set()
+def generate_recipe_uid(use_nextcloud_recipe_filestore: bool = False, existing_ids: Set[Union[int, str]] = None) -> int:
+    existing_ids = [str(i) for i in existing_ids or set()]
     if use_nextcloud_recipe_filestore:
         for file in get_recipe_files():
             recipe_data = parse_recipe(file)
             existing_ids.add(int(recipe_data.get("id", 0)))
 
     new_id = random.randint(100000, 999999)
-    while new_id in existing_ids:
+    while str(new_id) in existing_ids:
         new_id = random.randint(100000, 999999)
 
     return new_id

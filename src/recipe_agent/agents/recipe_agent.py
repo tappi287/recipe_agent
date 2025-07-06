@@ -74,6 +74,7 @@ async def scrape_recipe(url, save: bool = False) -> recipe.Recipe:
     recipe_obj = recipe.construct_recipe_from_recipe_llm(recipe.RecipeLLM(**data))
 
     # -- Save Recipe in another task
+    # TODO: Replace with api
     if save:
         task = asyncio.create_task(update_all_and_upload_recipe(recipe_obj))
         task.add_done_callback(
