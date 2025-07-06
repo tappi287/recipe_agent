@@ -25,6 +25,9 @@
             margin-bottom: 10px;
             padding: 8px;
             border-radius: 5px;
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .user-message {
@@ -34,6 +37,12 @@
 
         .bot-message {
             background-color: #f2f2f2;
+        }
+
+        .loading-message {
+            background-color: #f9f9f9;
+            color: #666;
+            font-style: italic;
         }
 
         .message-form {
@@ -64,6 +73,30 @@
             margin-left: 5px;
             cursor: pointer;
         }
+
+        .send-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ""; }
+            40% { content: "."; }
+            60% { content: ".."; }
+            80% { content: "..."; }
+        }
+
+        .loading::after {
+            content: "";
+            animation: dots 1.5s infinite;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
     </style>
 </head>
 <body>
@@ -84,6 +117,7 @@
         const messageInput = document.getElementById('messageInput');
         const usernameInput = document.getElementById('usernameInput');
         const sendButton = document.getElementById('sendButton');
+        let loadingMessage = null;
 
         // Cookie-Funktionen
         function setCookie(name, value, days) {
@@ -114,22 +148,31 @@
         }
 
         // Funktion zum Hinzufügen einer Nachricht zum Chat-Container
-        function addMessage(text, isUser) {
+        function addMessage(text, isUser, isLoading = false) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
-            messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
 
-            // Wenn es Markdown-Text ist, behalte die Formatierung bei
-            if (!isUser && text.includes('\n')) {
-                const pre = document.createElement('pre');
-                pre.textContent = text;
-                messageDiv.appendChild(pre);
+            if (isLoading) {
+                messageDiv.classList.add('loading-message');
+                messageDiv.innerHTML = '<span class="loading">Bot denkt nach</span>';
+                loadingMessage = messageDiv;
             } else {
-                messageDiv.textContent = text;
+                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+
+                // Wenn es Markdown-Text ist, behalte die Formatierung bei
+                if (!isUser && text.includes('\n')) {
+                    const pre = document.createElement('pre');
+                    pre.textContent = text;
+                    messageDiv.appendChild(pre);
+                } else {
+                    messageDiv.textContent = text;
+                }
             }
 
             chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            return messageDiv;
         }
 
         // Event-Handler für den Senden-Button
@@ -146,6 +189,13 @@
                 // Nachricht des Benutzers anzeigen
                 addMessage(message, true);
 
+                // Zeige Lade-Indikator
+                addMessage('', false, true);
+
+                // Deaktiviere Eingabefeld und Senden-Button während des Ladens
+                messageInput.disabled = true;
+                sendButton.disabled = true;
+
                 // Nachricht zum Server senden
                 try {
                     const response = await fetch('/chat', {
@@ -158,11 +208,29 @@
 
                     const data = await response.json();
 
+                    // Entferne Lade-Indikator
+                    if (loadingMessage) {
+                        chatContainer.removeChild(loadingMessage);
+                        loadingMessage = null;
+                    }
+
                     // Antwort des Bots anzeigen
                     addMessage(data.response, false);
                 } catch (error) {
                     console.error('Fehler:', error);
+
+                    // Entferne Lade-Indikator
+                    if (loadingMessage) {
+                        chatContainer.removeChild(loadingMessage);
+                        loadingMessage = null;
+                    }
+
                     addMessage('Ein Fehler ist aufgetreten. Bitte versuche es später noch einmal.', false);
+                } finally {
+                    // Aktiviere Eingabefeld und Senden-Button wieder
+                    messageInput.disabled = false;
+                    sendButton.disabled = false;
+                    messageInput.focus();
                 }
 
                 // Eingabefeld leeren
@@ -172,7 +240,7 @@
 
         // Ermögliche das Senden mit der Enter-Taste
         messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !sendButton.disabled) {
                 sendButton.click();
             }
         });
