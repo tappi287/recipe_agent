@@ -1,4 +1,6 @@
 import json
+import logging
+import os
 import re
 from pathlib import Path
 
@@ -10,7 +12,7 @@ from tornado.web import RequestHandler, Application
 from recipe_agent.agents import chat_agent, recipe_agent
 from recipe_agent.chat_history import ChatHistory
 from recipe_agent.recipe_config import SAVE_RECIPE_TERM
-from recipe_agent.utils import to_md_recipe
+from recipe_agent.utils import to_md_recipe, exception_and_traceback
 
 # Chat-Historie für Web-Nutzer
 WEB_CHAT_HISTORIES = ChatHistory(max_history_length=10)
@@ -54,6 +56,7 @@ class ChatHandler(RequestHandler):
                     # Formatiere die Antwort für das Web
                     response = markdown_recipe
             except Exception as e:
+                logging.error(f"Error while scraping {urls[0]}: {exception_and_traceback(e)}")
                 response = f"Fehler beim Abrufen des Rezepts: {str(e)}"
         else:
             # Normale Chat-Nachricht verarbeiten
@@ -62,15 +65,32 @@ class ChatHandler(RequestHandler):
         # Antwort zurücksenden
         self.write(json.dumps({"response": response}))
 
+
 def make_app():
     return Application([
         (r"/", MainHandler),
         (r"/chat", ChatHandler),
     ])
 
-if __name__ == "__main__":
+
+def start_web_app():
+    """Startet den Web-Server in einem separaten Thread"""
     app = make_app()
     server = tornado.httpserver.HTTPServer(app)
-    server.listen(8888)
-    print("Web-Server läuft auf http://localhost:8888")
-    IOLoop.current().start()
+
+    port = os.getenv("WEB_APP_PORT")
+    port = int(port) if port else 8888
+
+    server.listen(port)
+    logging.info(f"Web-Server läuft auf http://localhost:{port}")
+
+    try:
+        IOLoop.current().start()
+    except KeyboardInterrupt:
+        logging.info("Web application stopped.")
+    except Exception as e:
+        logging.exception(f"Web application failed: {exception_and_traceback(e)}")
+
+
+if __name__ == "__main__":
+    start_web_app()

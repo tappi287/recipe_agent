@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import re
+import threading
 import time
 from typing import List
 
@@ -13,6 +14,7 @@ from recipe_agent.agents import recipe_agent, chat_agent
 from recipe_agent.recipe_config import SAVE_RECIPE_TERM
 from recipe_agent.chat_history import ChatHistory
 from recipe_agent.utils import to_md_recipe, exception_and_traceback
+from recipe_agent.web_app import start_web_app
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -141,7 +143,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
-def main() -> None:
+def run_telegram_bot() -> None:
     application = Application.builder().token(os.environ.get('TELEBOT_TOKEN')).defaults(DEFAULTS).build()
 
     # Add the /start command handler
@@ -162,6 +164,15 @@ def main() -> None:
             time.sleep(5)
         else:
             break
+
+
+def main() -> None:
+    # Starte den Web-Server in einem separaten Thread
+    web_thread = threading.Thread(target=start_web_app, daemon=True)
+    web_thread.start()
+
+    # Starte den Telegram-Bot im Hauptthread
+    run_telegram_bot()
 
 
 if __name__ == '__main__':
