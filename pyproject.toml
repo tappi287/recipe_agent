@@ -10,6 +10,7 @@ dependencies = [
     "linkpreview>=0.11.0",
     "pydantic>=2.10.6",
     "python-telegram-bot==22.2",
+    "tornado>=6.5.1",
 ]
 
 [project.scripts]
