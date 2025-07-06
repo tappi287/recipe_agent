@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rezept-Bot Web-Interface</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .chat-container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .user-message {
+            background-color: #e6f7ff;
+            text-align: right;
+        }
+
+        .bot-message {
+            background-color: #f2f2f2;
+        }
+
+        .message-form {
+            display: flex;
+        }
+
+        .message-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .username-input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 5px;
+        }
+
+        .send-button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>Rezept-Bot Web-Interface</h1>
+<p>Sende mir Links zu Rezepten und ich schicke dir die Zutaten und Zubereitung ohne das Drumherum.</p>
+
+<div class="chat-container" id="chatContainer"></div>
+
+<div class="message-form">
+    <input type="text" id="usernameInput" placeholder="Name" class="username-input">
+    <input type="text" id="messageInput" placeholder="Deine Nachricht..." class="message-input">
+    <button id="sendButton" class="send-button">Senden</button>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const usernameInput = document.getElementById('usernameInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // Cookie-Funktionen
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Lade gespeicherten Benutzernamen, falls vorhanden
+        const savedUsername = getCookie("username");
+        if (savedUsername) {
+            usernameInput.value = savedUsername;
+        }
+
+        // Funktion zum Hinzufügen einer Nachricht zum Chat-Container
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+
+            // Wenn es Markdown-Text ist, behalte die Formatierung bei
+            if (!isUser && text.includes('\n')) {
+                const pre = document.createElement('pre');
+                pre.textContent = text;
+                messageDiv.appendChild(pre);
+            } else {
+                messageDiv.textContent = text;
+            }
+
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Event-Handler für den Senden-Button
+        sendButton.addEventListener('click', async function() {
+            const message = messageInput.value.trim();
+            const username = usernameInput.value.trim() || 'Web-Nutzer';
+
+            // Speichere Benutzernamen in einem Cookie
+            if (username !== 'Web-Nutzer') {
+                setCookie("username", username, 30); // Speichere für 30 Tage
+            }
+
+            if (message) {
+                // Nachricht des Benutzers anzeigen
+                addMessage(message, true);
+
+                // Nachricht zum Server senden
+                try {
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `message=${encodeURIComponent(message)}&username=${encodeURIComponent(username)}`
+                    });
+
+                    const data = await response.json();
+
+                    // Antwort des Bots anzeigen
+                    addMessage(data.response, false);
+                } catch (error) {
+                    console.error('Fehler:', error);
+                    addMessage('Ein Fehler ist aufgetreten. Bitte versuche es später noch einmal.', false);
+                }
+
+                // Eingabefeld leeren
+                messageInput.value = '';
+            }
+        });
+
+        // Ermögliche das Senden mit der Enter-Taste
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+
+        // Willkommensnachricht anzeigen
+        addMessage('Hey! Ich bin dein RezeptBot! Schicke mir Links zu Rezepten und ich schicke dir die Zutaten und Zubereitung ohne das Drumherum.', false);
+    });
+</script>
+</body>
+</html>
