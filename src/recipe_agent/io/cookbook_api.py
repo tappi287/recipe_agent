@@ -34,7 +34,7 @@ class NextcloudCookbookAPI:
         """
         self.base_url = base_url or os.getenv("NEXTCLOUD_URL", "")
         self.username = username or os.getenv("NEXTCLOUD_USERNAME", "")
-        self.app_password = app_password or os.getenv("NEXTCLOUD_COOKBOOK_API", "")
+        self.app_password = app_password or os.getenv("NEXTCLOUD_APP_PASSWORD", "")
 
         if not all([self.base_url, self.username, self.app_password]):
             logging.warning("Nextcloud-Konfiguration unvollständig. Stelle sicher, dass NEXTCLOUD_URL, "
