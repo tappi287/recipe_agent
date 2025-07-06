@@ -4,7 +4,7 @@ Tests für den NextcloudCookbookAPI Wrapper
 Diese Tests decken die wesentlichen Funktionen der NextcloudCookbookAPI-Klasse ab,
 einschließlich der GET, PUT und POST Methoden für den Endpunkt /api/v1/recipes.
 """
-
+import asyncio
 import os
 import json
 from datetime import datetime
@@ -15,19 +15,45 @@ import httpx
 import dotenv
 
 from recipe_agent.io.nextcloud import NextcloudRecipe
-from recipe_agent.io.cookbook_api import NextcloudCookbookAPI
+from recipe_agent.io.cookbook_api import NextcloudCookbookAPI, upload_recipe
 from recipe_agent.recipe import Recipe
-
-dotenv.load_dotenv()
 
 
 @pytest.mark.skip("To be tested manually")
 @pytest.mark.asyncio
 async def test_get_all_recipes_live():
+    dotenv.load_dotenv()
     api = NextcloudCookbookAPI(os.getenv("NEXTCLOUD_URL"), os.getenv("NEXTCLOUD_USERNAME"), os.getenv("NEXTCLOUD_APP_PASSWORD"))
     recipes = await api.get_all_recipes()
-    print(recipes)
+    for recipe in recipes:
+        print(recipe.get("id"), recipe.get("name"))
+
     assert len(recipes) > 0
+
+
+@pytest.mark.skip("To be tested manually")
+@pytest.mark.asyncio
+async def test_upload_hello_fresh_recipe():
+    from conftest import URLS
+    from recipe_agent.agents.recipe_agent import scrape_recipe
+    dotenv.load_dotenv()
+
+    # Call the function with the sample recipe
+    url = URLS["chilinudeln_in_erdnusssose"]
+    result = await scrape_recipe(url)
+
+    result_recipe = Recipe.model_validate(result.model_dump())
+    assert result_recipe
+    await asyncio.sleep(1)
+
+    # Upload
+    await upload_recipe(result_recipe)
+
+    # Verify Recipe is now in all recipes
+    api = NextcloudCookbookAPI()
+    all_recipes = await api.get_all_recipes()
+    assert result_recipe.name in [r.get("name") for r in all_recipes]
+
 
 
 @pytest.fixture
@@ -47,7 +73,7 @@ def sample_recipe_data():
     return {
         "@context": "http://schema.org",
         "@type": "Recipe",
-        "id": 123,
+        "id": "123",
         "name": "Testrezept",
         "description": "Ein Testrezept für Unittests",
         "url": "https://example.com/recipe",
@@ -319,7 +345,8 @@ async def test_check_credentials_valid(api_client):
 @pytest.mark.asyncio
 async def test_check_credentials_invalid():
     """Test für die _check_credentials Methode mit ungültigen Anmeldeinformationen"""
-    api = NextcloudCookbookAPI(base_url="", username="", app_password="")
+    api = NextcloudCookbookAPI()
+    api.base_url = str()
     result = api._check_credentials()
 
     # Überprüfen, ob False zurückgegeben wird
@@ -329,7 +356,8 @@ async def test_check_credentials_invalid():
 @pytest.mark.asyncio
 async def test_missing_credentials_get_all_recipes():
     """Test für get_all_recipes bei fehlenden Anmeldeinformationen"""
-    api = NextcloudCookbookAPI(base_url="", username="", app_password="")
+    api = NextcloudCookbookAPI()
+    api.base_url = str()
     result = await api.get_all_recipes()
 
     # Überprüfen, ob eine leere Liste zurückgegeben wird

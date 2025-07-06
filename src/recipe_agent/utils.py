@@ -5,6 +5,7 @@ import random
 import re
 import tempfile
 import traceback
+import urllib
 from pathlib import Path
 from typing import Optional, Tuple, Set, Union
 from urllib.parse import urlparse
@@ -27,6 +28,18 @@ def get_link_preview_image(url) -> str:
     print(f"Description: {preview.description}")
     print(f"Image: {preview.image}")
     return preview.image
+
+
+def get_link_preview_image_url(url) -> str:
+    link_preview_image = get_link_preview_image(url)
+    if not link_preview_image:
+        return str()
+
+    if link_preview_image.startswith("/"):
+        url = urllib.parse.urlparse(url)
+        link_preview_image = f"{url.scheme}://{url.netloc}{link_preview_image}"
+
+    return link_preview_image
 
 
 def download_image_to_tempfile(url: str) -> Optional[Path]:

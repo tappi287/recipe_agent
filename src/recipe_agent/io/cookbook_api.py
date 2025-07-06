@@ -34,7 +34,7 @@ class NextcloudCookbookAPI:
         """
         self.base_url = base_url or os.getenv("NEXTCLOUD_URL", "")
         self.username = username or os.getenv("NEXTCLOUD_USERNAME", "")
-        self.app_password = app_password or os.getenv("NEXTCLOUD_APP_PASSWORD", "")
+        self.app_password = app_password or os.getenv("NEXTCLOUD_COOKBOOK_API", "")
 
         if not all([self.base_url, self.username, self.app_password]):
             logging.warning("Nextcloud-Konfiguration unvollständig. Stelle sicher, dass NEXTCLOUD_URL, "
@@ -115,6 +115,11 @@ class NextcloudCookbookAPI:
         recipe_data = self._convert_recipe_to_dict(recipe)
         if not recipe_data:
             return None
+
+        # Remove Recipe ID that would trigger cookbook-app to look for an existing recipe:
+        # https://github.com/nextcloud/cookbook/blob/53783a148e124949ef075d8c5bf3b2e6f64dffbf/lib/Service/RecipeService.php#L224
+        if "id" in recipe_data:
+            recipe_data.pop("id", None)
 
         async with httpx.AsyncClient(auth=(self.username, self.app_password)) as client:
             try:
@@ -271,11 +276,11 @@ async def upload_recipe(recipe_instance: Recipe) -> bool:
         # -- Update existing Recipe
         if not await api.update_recipe(recipe_instance.id, recipe_instance):
             return False
+        await api.reindex()
         return True
     else:
         # -- Create a new Recipe
-        existing_ids = {r.id for r in existing_recipes}
-        recipe_instance.id = str(generate_recipe_uid(True, existing_ids))
         if not await api.create_recipe(recipe_instance):
             return False
+        await api.reindex()
         return True

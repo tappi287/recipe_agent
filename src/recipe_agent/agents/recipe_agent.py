@@ -6,11 +6,11 @@ import re
 from crawl4ai import AsyncWebCrawler, CrawlResult
 
 from recipe_agent import recipe
-from recipe_agent.io.nextcloud_webdav import update_all_and_upload_recipe
+from recipe_agent.io.cookbook_api import upload_recipe
 from recipe_agent.recipe import RecipeLLM
 from recipe_agent.openrouter_chat import openrouter_chat_request
 from recipe_agent.recipe_config import BASE_BROWSER, LL_EXTRACTION_STRATEGY, LLM_PROVIDER, CRAWL_CONFIG
-from recipe_agent.utils import exception_and_traceback
+from recipe_agent.utils import exception_and_traceback, get_link_preview_image_url
 
 
 async def process_with_openrouter(crawled_markdown: str, url: str) -> str:
@@ -74,9 +74,11 @@ async def scrape_recipe(url, save: bool = False) -> recipe.Recipe:
     recipe_obj = recipe.construct_recipe_from_recipe_llm(recipe.RecipeLLM(**data))
 
     # -- Save Recipe in another task
-    # TODO: Replace with api
     if save:
-        task = asyncio.create_task(update_all_and_upload_recipe(recipe_obj))
+        image_url = get_link_preview_image_url(url)
+        recipe_obj.image = image_url
+        task = asyncio.create_task(upload_recipe(recipe_obj))
+
         task.add_done_callback(
             lambda t: logging.error(f"Background save failed: {exception_and_traceback(t.exception())}")
             if t.exception() else None
