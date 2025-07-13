@@ -17,7 +17,9 @@ services:
       - playwright_cache:/root/.cache/ms-playwright
     # Point to your reverse proxy network
     networks:
-      - web
+      web:
+        ipv4_address: 172.18.0.20
+        ipv6_address: fd3d:ab00:83b3::20
 
 volumes:
   repo_data:
