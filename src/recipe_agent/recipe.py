@@ -45,7 +45,7 @@ class Recipe(BaseModel):
     cook_time: Optional[str] = Field(default=None, alias="cookTime")
     total_time: Optional[str] = Field(default=None, alias="totalTime")
     recipe_category: str = Field(default="", alias="recipeCategory")
-    keywords: str = Field(default="")
+    keywords: Optional[str] = Field(default="")
     recipe_yield: int = Field(default=1, alias="recipeYield")
     tool: List[str] = Field(default_factory=list)
     recipe_ingredient: List[str] = Field(default_factory=list, alias="recipeIngredient")

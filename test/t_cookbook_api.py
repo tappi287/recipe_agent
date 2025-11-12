@@ -27,6 +27,7 @@ async def test_get_all_recipes_live():
     recipes = await api.get_all_recipes()
     for recipe in recipes:
         print(recipe.get("id"), recipe.get("name"))
+        Recipe.model_validate(recipe)
 
     assert len(recipes) > 0
 
