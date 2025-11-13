@@ -7,7 +7,7 @@ from pathlib import Path
 import tornado.httpserver
 from jinja2 import Environment, FileSystemLoader
 from tornado.ioloop import IOLoop
-from tornado.web import RequestHandler, Application
+from tornado.web import RequestHandler, Application, StaticFileHandler
 
 from recipe_agent.agents import chat_agent, recipe_agent
 from recipe_agent.chat_history import ChatHistory
@@ -16,13 +16,13 @@ from recipe_agent.utils import to_md_recipe, exception_and_traceback
 
 # Chat-Historie für Web-Nutzer
 WEB_CHAT_HISTORIES = ChatHistory(max_history_length=10)
+BASE_PATH = Path(__file__).parents[2]
 
 
 class MainHandler(RequestHandler):
     def get(self):
         # Render des Hauptformulars mit Jinja2
-        base_path = Path(__file__).parents[2]
-        env = Environment(loader=FileSystemLoader(base_path.joinpath('templates').as_posix()))
+        env = Environment(loader=FileSystemLoader(BASE_PATH.joinpath('templates').as_posix()))
         template = env.get_template("index.html")
         self.write(template.render())
 
@@ -67,9 +67,12 @@ class ChatHandler(RequestHandler):
 
 
 def make_app():
+    static_path = BASE_PATH.joinpath('static').as_posix()
+
     return Application([
         (r"/", MainHandler),
         (r"/chat", ChatHandler),
+        (r"/(favicon\.ico)", StaticFileHandler, {"path": static_path}),
     ])
 
 
