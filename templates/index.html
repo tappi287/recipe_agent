@@ -97,6 +97,56 @@
             max-width: 100%;
             overflow-x: hidden;
         }
+
+        /* Markdown styles for bot messages */
+        .bot-message h1, .bot-message h2, .bot-message h3, .bot-message h4, .bot-message h5, .bot-message h6 {
+            margin: 0.6em 0 0.4em;
+            line-height: 1.2;
+        }
+        .bot-message p {
+            margin: 0.4em 0;
+        }
+        .bot-message ul, .bot-message ol {
+            padding-left: 1.4em;
+            margin: 0.4em 0;
+        }
+        .bot-message li {
+            margin: 0.2em 0;
+        }
+        .bot-message code {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 3px;
+            padding: 0.1em 0.3em;
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        .bot-message pre code {
+            display: block;
+            padding: 0.6em;
+            overflow-x: auto;
+        }
+        .bot-message blockquote {
+            border-left: 4px solid #ddd;
+            background: #fafafa;
+            margin: 0.6em 0;
+            padding: 0.4em 0.8em;
+            color: #555;
+        }
+        .bot-message table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0.6em 0;
+        }
+        .bot-message th, .bot-message td {
+            border: 1px solid #e0e0e0;
+            padding: 6px 8px;
+            text-align: left;
+        }
+        .bot-message img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -111,6 +161,10 @@
     <button id="sendButton" class="send-button">Senden</button>
 </div>
 
+<!-- Markdown + Sanitizer -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const chatContainer = document.getElementById('chatContainer');
@@ -118,6 +172,14 @@
         const usernameInput = document.getElementById('usernameInput');
         const sendButton = document.getElementById('sendButton');
         let loadingMessage = null;
+
+        // Configure Markdown renderer (Marked)
+        if (window.marked) {
+            marked.setOptions({
+                breaks: true, // treat single line breaks as <br>
+                gfm: true
+            });
+        }
 
         // Cookie-Funktionen
         function setCookie(name, value, days) {
@@ -159,13 +221,27 @@
             } else {
                 messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
 
-                // Wenn es Markdown-Text ist, behalte die Formatierung bei
-                if (!isUser && text.includes('\n')) {
-                    const pre = document.createElement('pre');
-                    pre.textContent = text;
-                    messageDiv.appendChild(pre);
+                // Bot-Antworten als Markdown rendern (sicher mit DOMPurify)
+                if (!isUser) {
+                    try {
+                        if (window.marked && window.DOMPurify) {
+                            const rawHtml = marked.parse(text ?? '');
+                            const safeHtml = DOMPurify.sanitize(rawHtml, {USE_PROFILES: {html: true}});
+                            messageDiv.innerHTML = safeHtml;
+                        } else {
+                            // Fallback: normale Textanzeige mit einfacher Zeilenumbruch-Handhabung
+                            const pre = document.createElement('pre');
+                            pre.textContent = text ?? '';
+                            messageDiv.appendChild(pre);
+                        }
+                    } catch (e) {
+                        // Im Fehlerfall sicher als Text anzeigen
+                        const pre = document.createElement('pre');
+                        pre.textContent = text ?? '';
+                        messageDiv.appendChild(pre);
+                    }
                 } else {
-                    messageDiv.textContent = text;
+                    messageDiv.textContent = text ?? '';
                 }
             }
 

@@ -215,9 +215,10 @@ def escape_md_v2(txt: str):
 
 
 def to_md_recipe(r: 'Recipe'):
-    md = f"*{escape_md_v2(r.name)}*\n\n*Zutaten*\n   \\- "
+    md = f"## {escape_md_v2(r.name)}\n\n"
+    md += f"#### Zutaten\n   \\- "
     md += "\n   \\- ".join([escape_md_v2(i) for i in r.recipe_ingredient])
-    md += "\n\n*Zubereitung*\n"
+    md += "\n\n#### Zubereitung\n"
     md += "\n".join([escape_md_v2(f"{idx + 1: 2d}. {i}") for idx, i in enumerate(r.recipe_instructions)])
 
     return md
