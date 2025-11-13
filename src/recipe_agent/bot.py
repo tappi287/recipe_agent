@@ -13,7 +13,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, ContextTyp
 from recipe_agent.agents import recipe_agent, chat_agent
 from recipe_agent.recipe_config import SAVE_RECIPE_TERM
 from recipe_agent.chat_history import ChatHistory
-from recipe_agent.utils import to_md_recipe, exception_and_traceback
+from recipe_agent.utils import to_md_recipe, exception_and_traceback, escape_md_v2
 from recipe_agent.web_app import start_web_app
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -95,7 +95,7 @@ async def _process_recipe(update: Update, urls: List[str], message_text: str, ju
         dot_task.cancel()
 
         if not just_save:
-            markdown_recipe = to_md_recipe(recipe_obj)
+            markdown_recipe = escape_md_v2(to_md_recipe(recipe_obj))
             BOT_AI_CHAT_HISTORY.add_assistant_response(username, markdown_recipe)
             await update.message.reply_markdown_v2(
                 markdown_recipe
